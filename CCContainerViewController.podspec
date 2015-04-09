@@ -7,7 +7,7 @@ Pod::Spec.new do |s|
   s.license      = { :type => 'MIT', :file => 'LICENSE' }
   s.author       = { "Charles-Adrien Fournier" => "charladfr@me.com" }
   s.source       = { 
-  :git => "https://github.com/Fourni-j/CCContainerViewController.git"
+  :git => "https://github.com/Fourni-j/CCContainerViewController.git",
   :tag => "v1.0"
   }
 
