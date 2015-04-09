@@ -53,6 +53,7 @@
         [self setButtonTextDefaultColor:[UIColor colorWithRed:0.98 green:0.98 blue:0.98 alpha:1]];
         [self setButtonTextSelectedColor:[UIColor colorWithRed:0.88 green:0.18 blue:0.08 alpha:1]];
         [self setButtonTextFont:[UIFont systemFontOfSize:10]];
+        [self setSideBarWidth:64.0];
     }
     return self;
 }
@@ -66,6 +67,7 @@
         [self setButtonTextDefaultColor:[UIColor colorWithRed:0.98 green:0.98 blue:0.98 alpha:1]];
         [self setButtonTextSelectedColor:[UIColor colorWithRed:0.88 green:0.18 blue:0.08 alpha:1]];
         [self setButtonTextFont:[UIFont systemFontOfSize:10]];
+        [self setSideBarWidth:64.0];
     }
     return self;
 }
@@ -192,7 +194,7 @@
         make.top.mas_equalTo(self.view.mas_top);
         make.bottom.mas_equalTo(self.view.mas_bottom);
         make.left.mas_equalTo(self.view.mas_left);
-        make.width.mas_equalTo(64);
+        make.width.mas_equalTo(self.sideBarWidth);
     }];
     
     [self.sideBarView mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -210,7 +212,7 @@
         make.left.mas_equalTo(self.sideBarScrollView.mas_right);
     }];
     
-    self.sideBarScrollView.contentInset = UIEdgeInsetsMake(64, 0, 64, 0);
+    self.sideBarScrollView.contentInset = UIEdgeInsetsMake(20, 0, 0, 0);
     
     CCBarButton *lastButton = nil;
     

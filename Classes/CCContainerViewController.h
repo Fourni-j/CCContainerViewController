@@ -42,6 +42,8 @@
 
 @property (nonatomic) UIFont *buttonTextFont;
 
+@property (nonatomic) CGFloat sideBarWidth;
+
 @end
 
 @protocol CCContainerViewControllerDelegate <NSObject>
