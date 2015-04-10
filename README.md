@@ -4,7 +4,10 @@ Simple Container for viewController
 ## Installation
 
 Use [CocoaPods](http://cocoapods.org)
-    pod 'CCContainerViewController', :git => 'https://github.com/Fourni-j/CCContainerViewController.git'
+
+```sh
+pod 'CCContainerViewController', :git => 'https://github.com/Fourni-j/CCContainerViewController.git'
+```
 
 ## Contact
 
