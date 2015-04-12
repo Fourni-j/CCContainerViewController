@@ -392,6 +392,14 @@
     }
 }
 
+- (BOOL)shouldAutorotate {
+    return [[self selectedViewController] shouldAutorotate];
+}
+
+- (NSUInteger)supportedInterfaceOrientations {
+    return [[self selectedViewController] supportedInterfaceOrientations];
+}
+
 @end
 
 static char const * const barItemKey = "cccontainerviewcontroller.barItem.key";
