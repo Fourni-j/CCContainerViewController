@@ -1,5 +1,5 @@
 # CCContainerViewController
-Simple Container for viewController
+Custom UITabBarViewController for iPad
 
 ## Installation
 
