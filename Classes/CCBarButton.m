@@ -46,10 +46,12 @@
             make.width.greaterThanOrEqualTo(self.badgeContainer.mas_height);
         }];
         
-        self.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10);
-        self.titleEdgeInsets = UIEdgeInsetsMake(40, -30, 0, 0);
-        self.titleLabel.textAlignment = NSTextAlignmentCenter;
+//        self.imageEdgeInsets = UIEdgeInsetsMake(10, 10, 10, 10);
+//        self.titleEdgeInsets = UIEdgeInsetsMake(40, -30, 0, 0);
+//        self.titleLabel.textAlignment = NSTextAlignmentCenter;
         self.badgeContainer.alpha = 0.0;
+        
+        [self setContentHorizontalAlignment:UIControlContentHorizontalAlignmentCenter];
     }
     return self;
 }
@@ -57,6 +59,19 @@
 - (void)layoutSubviews {
     [super layoutSubviews];
     self.badgeContainer.layer.cornerRadius = self.badgeContainer.bounds.size.height/2;
+    [self centerImageAndButton:8 imageOnTop:YES];
+}
+
+//https://gist.github.com/phpmaple/9458264
+- (void)centerImageAndButton:(CGFloat)gap imageOnTop:(BOOL)imageOnTop {
+    NSInteger sign = imageOnTop ? 1 : -1;
+    
+    CGSize imageSize = self.imageView.frame.size;
+    self.titleEdgeInsets = UIEdgeInsetsMake((imageSize.height+gap)*sign, -imageSize.width, 0, 0);
+    
+    CGSize titleSize = self.titleLabel.bounds.size;
+    self.imageEdgeInsets = UIEdgeInsetsMake(-(titleSize.height+gap)*sign, 0, 0, -titleSize.width);
+    
 }
 
 - (void)setBadgeValue:(NSString *)badgeValue {

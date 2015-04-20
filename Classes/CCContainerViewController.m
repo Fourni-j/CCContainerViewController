@@ -23,6 +23,8 @@
 @property NSMutableArray    *buttons;
 @property (nonatomic) BOOL  builded;
 
+@property (nonatomic, strong) CAShapeLayer *detailViewMaskLayer;
+
 @end
 
 @implementation CCContainerViewController
@@ -61,14 +63,15 @@
 - (void)configureDefaults
 {
     _selectedIndex = 0;
-    [self setSideBarBackground:[UIColor colorWithRed:0.16 green:0.16 blue:0.16 alpha:1]];
-    [self setButtonDefaultColor:[UIColor colorWithRed:0.98 green:0.98 blue:0.98 alpha:1]];
-    [self setButtonSelectedColor:[UIColor colorWithRed:0.88 green:0.18 blue:0.08 alpha:1]];
-    [self setButtonTextDefaultColor:[UIColor colorWithRed:0.98 green:0.98 blue:0.98 alpha:1]];
-    [self setButtonTextSelectedColor:[UIColor colorWithRed:0.88 green:0.18 blue:0.08 alpha:1]];
-    [self setButtonTextFont:[UIFont systemFontOfSize:10]];
-    [self setSideBarWidth:64.0];
+    _sideBarBackground = [UIColor colorWithRed:0.16 green:0.16 blue:0.16 alpha:1];
+    _buttonDefaultColor = [UIColor colorWithRed:0.98 green:0.98 blue:0.98 alpha:1];
+    _buttonSelectedColor = [UIColor colorWithRed:0.88 green:0.18 blue:0.08 alpha:1];
+    _buttonTextDefaultColor = [UIColor colorWithRed:0.98 green:0.98 blue:0.98 alpha:1];
+    _buttonTextSelectedColor = [UIColor colorWithRed:0.88 green:0.18 blue:0.08 alpha:1];
+    _buttonTextFont = [UIFont systemFontOfSize:10];
+    _sideBarWidth = 64.0;
     _buttonSpace = 22.0;
+    _detailCornerRadius = 0.0;
 }
 
 #pragma mark - Accessor
@@ -152,6 +155,7 @@
 - (void)setSideBarBackground:(UIColor *)sideBarBackground {
     _sideBarBackground = sideBarBackground;
     [self.sideBarScrollView setBackgroundColor:sideBarBackground];
+    [self.view setBackgroundColor:sideBarBackground];
 }
 
 - (void)setButtonDefaultColor:(UIColor *)buttonDefaultColor {
@@ -163,7 +167,7 @@
 
 - (void)setButtonSelectedColor:(UIColor *)buttonSelectedColor {
     _buttonSelectedColor = buttonSelectedColor;
-    [[self.buttons objectAtIndex:self.selectedIndex] setBackgroundColor:_buttonSelectedColor];
+    if(self.selectedIndex < self.buttons.count) [[self.buttons objectAtIndex:self.selectedIndex] setBackgroundColor:_buttonSelectedColor];
 }
 
 - (void)setButtonTextDefaultColor:(UIColor *)buttonTextDefaultColor {
@@ -175,7 +179,7 @@
 
 - (void)setButtonTextSelectedColor:(UIColor *)buttonTextSelectedColor {
     _buttonTextSelectedColor = buttonTextSelectedColor;
-    [[self.buttons objectAtIndex:self.selectedIndex] setTitleColor:_buttonTextSelectedColor forState:UIControlStateNormal];
+    if(self.selectedIndex < self.buttons.count) [[self.buttons objectAtIndex:self.selectedIndex] setTitleColor:_buttonTextSelectedColor forState:UIControlStateNormal];
 }
 
 - (void)setButtonTextFont:(UIFont *)buttonTextFont {
@@ -185,7 +189,35 @@
     }
 }
 
+- (UIBezierPath *)detailBezierPath
+{
+    return [UIBezierPath bezierPathWithRoundedRect:_detailView.bounds
+                                 byRoundingCorners:(UIRectCornerTopLeft|UIRectCornerBottomLeft)
+                                       cornerRadii:CGSizeMake(_detailCornerRadius, _detailCornerRadius)];
+}
+
+- (void)updateDetailCorners
+{
+    _detailViewMaskLayer.frame = _detailView.bounds;
+    _detailViewMaskLayer.path = [self detailBezierPath].CGPath;
+}
+
 #pragma mark - Managing Views
+
+- (void)viewDidLayoutSubviews
+{
+    [self.view layoutSubviews];
+    [super viewDidLayoutSubviews];
+    [self updateDetailCorners];
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    
+    [self.sideBarScrollView setNeedsLayout];
+    [self.sideBarScrollView layoutIfNeeded];
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -194,7 +226,14 @@
     self.sideBarScrollView = [[UIScrollView alloc] init];
     self.sideBarView = [[UIView alloc] init];
     
+    self.detailView.backgroundColor = [UIColor clearColor];
+    self.detailView.clipsToBounds = YES;
+    
+    _detailViewMaskLayer = [[CAShapeLayer alloc] init];
+    _detailView.layer.mask = _detailViewMaskLayer;
+    
     [self.sideBarScrollView setBackgroundColor:self.sideBarBackground];
+    [self.view setBackgroundColor:self.sideBarBackground];
     [self.view addSubview:self.detailView];
     [self.view addSubview:self.sideBarScrollView];
     [self.sideBarScrollView setScrollsToTop:NO];
@@ -276,6 +315,7 @@
         [button setTitle:[[self.viewControllers[i] barItem] title] forState:UIControlStateNormal];
         [button setEnabled:[[self.viewControllers[i] barItem] enabled]];
         [button setBadgeValue:[[self.viewControllers[i] barItem] badgeValue]];
+        
         if(animate)
         {
             button.alpha = 0.0;
@@ -308,8 +348,8 @@
                 make.top.mas_equalTo(self.sideBarScrollView);
             }
             make.centerX.mas_equalTo(self.sideBarScrollView);
-            make.width.mas_equalTo(50);
-            make.height.mas_equalTo(50);
+            make.width.mas_equalTo(self.sideBarScrollView).multipliedBy(0.9);
+            make.height.mas_equalTo(button.mas_width);
             if (i == [self.viewControllers count] - 1) {
                 make.bottom.mas_equalTo(self.sideBarScrollView);
             }
@@ -318,6 +358,9 @@
         [self.buttons addObject:button];
         lastButton = button;
     }
+    
+    [self.sideBarScrollView setNeedsLayout];
+    [self.sideBarScrollView layoutIfNeeded];
     
     if(animate)
     {
@@ -377,7 +420,7 @@
         return;
     }
     
-    [self setSelectedIndex:[sender tag] animated:_shouldAnimateTranstions];
+    [self setSelectedIndex:[sender tag] animated:_shouldAnimateTransitions];
 }
 
 - (void)presentDetailViewController:(UIViewController *)detailViewController

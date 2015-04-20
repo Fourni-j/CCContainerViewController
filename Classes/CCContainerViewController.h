@@ -37,7 +37,8 @@
 @property (nonatomic) UIFont *buttonTextFont;
 @property (nonatomic) CGFloat sideBarWidth;
 @property (nonatomic) CGFloat buttonSpace;
-@property (nonatomic) BOOL shouldAnimateTranstions;
+@property (nonatomic) BOOL shouldAnimateTransitions;
+@property (nonatomic) CGFloat detailCornerRadius;
 
 @end
 
