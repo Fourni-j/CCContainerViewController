@@ -30,6 +30,8 @@
 
 - (instancetype)init;
 
+- (CGRect)frameForTabBarItemAtIndex:(NSInteger)index;
+
 @property (nonatomic) UIColor *sideBarBackground;
 
 @property (nonatomic) UIColor *buttonSelectedColor;

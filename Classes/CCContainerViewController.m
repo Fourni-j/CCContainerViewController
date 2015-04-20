@@ -74,6 +74,22 @@
 
 #pragma mark - Accessor
 
+- (CGRect)frameForTabBarItemAtIndex:(NSInteger)index
+{
+    UIView *button = self.buttons[index];
+    
+    CGRect frame = button.bounds;
+    UIView *childView = button;
+    
+    while (childView != self.view)
+    {
+        frame = [childView convertRect:frame toView:childView.superview];
+        childView = childView.superview;
+    }
+    
+    return frame;
+}
+
 - (void) setViewControllers:(NSArray *)controllers animated:(BOOL)animated {
     self.viewControllers = controllers;
     self.animated = animated;
