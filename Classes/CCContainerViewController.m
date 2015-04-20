@@ -21,10 +21,7 @@
 @property UIScrollView      *sideBarScrollView;
 @property UIView            *sideBarView;
 @property NSMutableArray    *buttons;
-@property NSMutableArray    *buttonsBadges;
-@property BOOL              animated;
-
-@property NSUInteger        expectedIndex;
+@property (nonatomic) BOOL  builded;
 
 @end
 
@@ -42,18 +39,11 @@
 
 #pragma mark - Initialization
 
-- (instancetype)initWithControllers:(NSArray *)controllers animated:(BOOL)animated{
+- (instancetype)initWithControllers:(NSArray *)controllers {
     self = [super init];
     if (self) {
         self.viewControllers = controllers;
-        self.animated = animated;
-        [self setSideBarBackground:[UIColor colorWithRed:0.16 green:0.16 blue:0.16 alpha:1]];
-        [self setButtonDefaultColor:[UIColor colorWithRed:0.98 green:0.98 blue:0.98 alpha:1]];
-        [self setButtonSelectedColor:[UIColor colorWithRed:0.88 green:0.18 blue:0.08 alpha:1]];
-        [self setButtonTextDefaultColor:[UIColor colorWithRed:0.98 green:0.98 blue:0.98 alpha:1]];
-        [self setButtonTextSelectedColor:[UIColor colorWithRed:0.88 green:0.18 blue:0.08 alpha:1]];
-        [self setButtonTextFont:[UIFont systemFontOfSize:10]];
-        [self setSideBarWidth:64.0];
+        [self configureDefaults];
     }
     return self;
 }
@@ -61,15 +51,24 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-        [self setSideBarBackground:[UIColor colorWithRed:0.16 green:0.16 blue:0.16 alpha:1]];
-        [self setButtonDefaultColor:[UIColor colorWithRed:0.98 green:0.98 blue:0.98 alpha:1]];
-        [self setButtonSelectedColor:[UIColor colorWithRed:0.88 green:0.18 blue:0.08 alpha:1]];
-        [self setButtonTextDefaultColor:[UIColor colorWithRed:0.98 green:0.98 blue:0.98 alpha:1]];
-        [self setButtonTextSelectedColor:[UIColor colorWithRed:0.88 green:0.18 blue:0.08 alpha:1]];
-        [self setButtonTextFont:[UIFont systemFontOfSize:10]];
-        [self setSideBarWidth:64.0];
+        [self configureDefaults];
     }
     return self;
+}
+
+#pragma mark - Defaults
+
+- (void)configureDefaults
+{
+    _selectedIndex = 0;
+    [self setSideBarBackground:[UIColor colorWithRed:0.16 green:0.16 blue:0.16 alpha:1]];
+    [self setButtonDefaultColor:[UIColor colorWithRed:0.98 green:0.98 blue:0.98 alpha:1]];
+    [self setButtonSelectedColor:[UIColor colorWithRed:0.88 green:0.18 blue:0.08 alpha:1]];
+    [self setButtonTextDefaultColor:[UIColor colorWithRed:0.98 green:0.98 blue:0.98 alpha:1]];
+    [self setButtonTextSelectedColor:[UIColor colorWithRed:0.88 green:0.18 blue:0.08 alpha:1]];
+    [self setButtonTextFont:[UIFont systemFontOfSize:10]];
+    [self setSideBarWidth:64.0];
+    _buttonSpace = 22.0;
 }
 
 #pragma mark - Accessor
@@ -90,26 +89,41 @@
     return frame;
 }
 
-- (void) setViewControllers:(NSArray *)controllers animated:(BOOL)animated {
-    self.viewControllers = controllers;
-    self.animated = animated;
+- (void)setViewControllers:(NSArray *)controllers animated:(BOOL)animated {
+    _viewControllers = controllers;
+    if(_builded) [self buildButtonsAnimated:animated];
 }
 
-- (void) setViewControllers:(NSArray *)viewControllers {
-    _viewControllers = viewControllers;
-    self.animated = YES;
+- (void)setViewControllers:(NSArray *)viewControllers {
+    [self setViewControllers:viewControllers animated:NO];
 }
 
 - (NSArray *)viewControllers {
     return _viewControllers;
 }
 
-- (void)setSelectedIndex:(NSUInteger)selectedIndex {
-    self.expectedIndex = selectedIndex;
-    [self presentDetailViewController:self.viewControllers[selectedIndex]];
+
+- (void)setSelectedIndex:(NSUInteger)selectedIndex
+{
+    [self setSelectedIndex:selectedIndex animated:NO];
+}
+
+- (void)setSelectedIndex:(NSUInteger)selectedIndex animated:(BOOL)animate {
+    //self.expectedIndex = selectedIndex;
+    
+    if(!_builded || self.viewControllers.count == 0)
+    {
+        _selectedIndex = selectedIndex;
+        return;
+    }
+    
+    [self presentDetailViewController:self.viewControllers[selectedIndex] animated:animate];
+    
     [[self.buttons objectAtIndex:self.selectedIndex] setTintColor:self.buttonDefaultColor];
     [[self.buttons objectAtIndex:self.selectedIndex] setTitleColor:self.buttonTextDefaultColor forState:UIControlStateNormal];
+    
     _selectedIndex = selectedIndex;
+    
     [[self.buttons objectAtIndex:self.selectedIndex] setTintColor:self.buttonSelectedColor];
     [[self.buttons objectAtIndex:self.selectedIndex] setTitleColor:self.buttonTextSelectedColor forState:UIControlStateNormal];
 }
@@ -122,10 +136,15 @@
     return ([self.viewControllers objectAtIndex:self.selectedIndex]);
 }
 
-- (void)setSelectedViewController:(UIViewController *)selectedViewController {
+- (void)setSelectedViewController:(UIViewController *)selectedViewController
+{
+    [self setSelectedViewController:selectedViewController animated:NO];
+}
+
+- (void)setSelectedViewController:(UIViewController *)selectedViewController animated:(BOOL)animate {
     for (int i = 0; i < [self.viewControllers count]; i++) {
         if (selectedViewController == [self.viewControllers objectAtIndex:i]) {
-            [self setSelectedIndex:i];
+            [self setSelectedIndex:i animated:animate];
         }
     }
 }
@@ -166,40 +185,15 @@
     }
 }
 
-- (UIColor *)sideBarBackground {
-    return _sideBarBackground;
-}
-
-- (UIColor *)buttonSelectedColor {
-    return _buttonSelectedColor;
-}
-
-- (UIColor *)buttonDefaultColor {
-    return _buttonDefaultColor;
-}
-
-- (UIColor *)buttonTextDefaultColor {
-    return _buttonTextDefaultColor;
-}
-
-- (UIColor *)buttonTextSelectedColor {
-    return _buttonTextSelectedColor;
-}
-
-- (UIFont *)buttonTextFont {
-    return _buttonTextFont;
-}
-
 #pragma mark - Managing Views
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    self.buttons = [[NSMutableArray alloc] init];
-    self.buttonsBadges = [[NSMutableArray alloc] init];
     self.detailView = [[UIView alloc] init];
     self.sideBarScrollView = [[UIScrollView alloc] init];
     self.sideBarView = [[UIView alloc] init];
+    
     [self.sideBarScrollView setBackgroundColor:self.sideBarBackground];
     [self.view addSubview:self.detailView];
     [self.view addSubview:self.sideBarScrollView];
@@ -230,7 +224,49 @@
     
     self.sideBarScrollView.contentInset = UIEdgeInsetsMake(20, 0, 0, 0);
     
+    [self buildButtonsAnimated:NO];
+    _builded = YES;
+    
+    if (self.viewControllers) {
+        self.selectedIndex = _selectedIndex;
+    }
+}
+
+
+- (void)buildButtonsAnimated:(BOOL)animate
+{
+    if(self.buttons.count > 0)
+    {
+        void (^completeRemoving)() = ^{
+            [self.buttons makeObjectsPerformSelector:@selector(removeFromSuperview)];
+        };
+        
+        if(animate)
+        {
+            [UIView animateWithDuration:0.2 animations:^{
+                for (UIView *btn in self.buttons)
+                {
+                    btn.alpha = 0.0;
+                }
+            } completion:^(BOOL finished) {
+                completeRemoving();
+            }];
+        }
+        else
+        {
+            completeRemoving();
+        }
+    }
+    
+    self.buttons = [[NSMutableArray alloc] init];
+    
     CCBarButton *lastButton = nil;
+    
+    NSMutableIndexSet *disabledIndexes = nil;
+    if(animate)
+    {
+        disabledIndexes = [[NSMutableIndexSet alloc] init];
+    }
     
     for (int i = 0; i < self.viewControllers.count; i++) {
         CCBarButton *button = [[CCBarButton alloc] init];
@@ -240,20 +276,34 @@
         [button setTitle:[[self.viewControllers[i] barItem] title] forState:UIControlStateNormal];
         [button setEnabled:[[self.viewControllers[i] barItem] enabled]];
         [button setBadgeValue:[[self.viewControllers[i] barItem] badgeValue]];
-        if ([[self.viewControllers[i] barItem] enabled] == NO) {
-            [button setAlpha:0.5];
+        if(animate)
+        {
+            button.alpha = 0.0;
+            if ([[self.viewControllers[i] barItem] enabled] == NO)
+            {
+                [disabledIndexes addIndex:i];
+            }
+        }
+        else
+        {
+            if ([[self.viewControllers[i] barItem] enabled] == NO) {
+                [button setAlpha:0.5];
+            }
         }
         
         [[self.viewControllers[i] barItem] addObserver:self forKeyPath:@"title" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
         [[self.viewControllers[i] barItem] addObserver:self forKeyPath:@"image" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
         [[self.viewControllers[i] barItem] addObserver:self forKeyPath:@"enabled" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
         [[self.viewControllers[i] barItem] addObserver:self forKeyPath:@"badgeValue" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
+        
         [button addTarget:self action:@selector(buttonClicked:) forControlEvents:UIControlEventTouchUpInside];
         [button setTag:i];
-        [self.sideBarView addSubview:button];
+        
+        [self.sideBarScrollView addSubview:button];
+        
         [button mas_makeConstraints:^(MASConstraintMaker *make) {
             if (lastButton) {
-                make.top.mas_equalTo(lastButton.mas_bottom);
+                make.top.mas_equalTo(lastButton.mas_bottom).insets(UIEdgeInsetsMake(_buttonSpace, 0, 0, 0));
             } else {
                 make.top.mas_equalTo(self.sideBarScrollView);
             }
@@ -264,11 +314,19 @@
                 make.bottom.mas_equalTo(self.sideBarScrollView);
             }
         }];
+        
         [self.buttons addObject:button];
         lastButton = button;
     }
-    if (self.viewControllers) {
-        self.selectedIndex = 0;
+    
+    if(animate)
+    {
+        [UIView animateWithDuration:0.2 animations:^{
+            for (int i = 0; i < self.buttons.count; i++)
+            {
+                ((UIView *)self.buttons[i]).alpha = [disabledIndexes containsIndex:i] ? 0.5 : 1.0;
+            }
+        }];
     }
 }
 
@@ -318,17 +376,26 @@
     if ((_delegate && (![_delegate respondsToSelector:@selector(customContainerViewController:shouldSelectViewController:)] || ![_delegate customContainerViewController:self shouldSelectViewController:[self.viewControllers objectAtIndex:[sender tag]]])) || self.selectedIndex == [sender tag]) {
         return;
     }
-    self.selectedIndex = [sender tag];
+    
+    [self setSelectedIndex:[sender tag] animated:_shouldAnimateTranstions];
 }
 
-- (void)presentDetailViewController:(UIViewController *)detailViewController {
+- (void)presentDetailViewController:(UIViewController *)detailViewController
+{
+    [self presentDetailViewController:detailViewController animated:NO];
+}
+
+- (void)presentDetailViewController:(UIViewController *)detailViewController animated:(BOOL)animate {
+    
+    if(detailViewController == nil) return;
+    if(!_builded) return;
     
     [self deactivateButtons];
     
     [self addChildViewController:detailViewController];
     [self.detailView addSubview:detailViewController.view];
     
-    if (self.animated) {
+    if (animate) {
         __block MASConstraint *constraint = nil;
         
         [detailViewController.view mas_remakeConstraints:^(MASConstraintMaker *make) {
@@ -337,7 +404,11 @@
             make.height.equalTo(self.detailView);
             make.width.equalTo(self.detailView);
         }];
-        if (self.expectedIndex > self.selectedIndex) {
+        
+        NSInteger currentIndex = [self.viewControllers indexOfObject:_currentDetailViewController];
+        NSInteger nextIndex = [self.viewControllers indexOfObject:detailViewController];
+        
+        if (nextIndex > currentIndex) {
             [detailViewController.view mas_updateConstraints:^(MASConstraintMaker *make) {
                 constraint = make.top.equalTo(self.detailView.mas_bottom);
             }];

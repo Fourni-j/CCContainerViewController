@@ -30,7 +30,6 @@
         self.badgeContainer.layer.cornerRadius = self.badgeContainer.bounds.size.height/2;
         
         self.badgeLabel = [UILabel new];
-        [self addObserver:self forKeyPath:@"badgeValue" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
         self.badgeLabel.textColor = [UIColor whiteColor];
         self.badgeLabel.textAlignment = NSTextAlignmentCenter;
         self.badgeLabel.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:11];
@@ -55,10 +54,6 @@
     return self;
 }
 
--(void)dealloc {
-    [self removeObserver:self forKeyPath:@"badgeValue"];
-}
-
 - (void)layoutSubviews {
     [super layoutSubviews];
     self.badgeContainer.layer.cornerRadius = self.badgeContainer.bounds.size.height/2;
@@ -68,9 +63,11 @@
     
     _badgeValue = badgeValue;
     
-    if (_badgeValue == nil && _badgeContainer.alpha > 0) {
+    if ((_badgeValue == nil || [_badgeValue isEqualToString:@""]) && _badgeContainer.alpha > 0) {
         [UIView animateWithDuration:0.15 animations:^{
             _badgeContainer.alpha = 0.0;
+        } completion:^(BOOL finished) {
+            _badgeLabel.text = nil;
         }];
     } else if (_badgeValue && [_badgeValue length] > 0) {
         _badgeLabel.text = _badgeValue;
@@ -83,17 +80,6 @@
             }];
         }
         
-    }
-}
-
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    if ([keyPath isEqualToString:@"badgeValue"] && [object isEqual:self]) {
-        self.badgeLabel.text = [NSString stringWithFormat:@"%@", self.badgeValue];
-        if ([[change objectForKey:@"new"] isEqualToString:@""]) {
-            self.badgeLabel.hidden = YES;
-        } else {
-            self.badgeLabel.hidden = NO;
-        }
     }
 }
 

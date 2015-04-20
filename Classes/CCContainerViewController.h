@@ -15,36 +15,29 @@
 
 @interface CCContainerViewController : UIViewController
 
-
-@property (nonatomic, copy) NSArray *viewControllers;
-
-- (void)setViewControllers:(NSArray *)controllers animated:(BOOL)animated;
-
-@property (nonatomic, assign) UIViewController *selectedViewController;
-
-@property (nonatomic) NSUInteger selectedIndex;
+- (instancetype)initWithControllers:(NSArray *)controllers;
 
 @property (nonatomic, assign) id<CCContainerViewControllerDelegate>delegate;
+@property (nonatomic, copy) NSArray *viewControllers;
+@property (nonatomic, assign) UIViewController *selectedViewController;
+@property (nonatomic) NSUInteger selectedIndex;
 
-- (instancetype)initWithControllers:(NSArray *)controllers animated:(BOOL)animated;
 
-- (instancetype)init;
+- (void)setViewControllers:(NSArray *)controllers animated:(BOOL)animated;
+- (void)setSelectedViewController:(UIViewController *)selectedViewController animated:(BOOL)animate;
+- (void)setSelectedIndex:(NSUInteger)selectedIndex animated:(BOOL)animate;
 
 - (CGRect)frameForTabBarItemAtIndex:(NSInteger)index;
 
 @property (nonatomic) UIColor *sideBarBackground;
-
 @property (nonatomic) UIColor *buttonSelectedColor;
-
 @property (nonatomic) UIColor *buttonDefaultColor;
-
 @property (nonatomic) UIColor *buttonTextDefaultColor;
-
 @property (nonatomic) UIColor *buttonTextSelectedColor;
-
 @property (nonatomic) UIFont *buttonTextFont;
-
 @property (nonatomic) CGFloat sideBarWidth;
+@property (nonatomic) CGFloat buttonSpace;
+@property (nonatomic) BOOL shouldAnimateTranstions;
 
 @end
 
@@ -57,7 +50,6 @@
 @interface UIViewController (CCContainer)
 
 @property (nonatomic, retain) CCBarItem *barItem;
-
 @property (nonatomic, readonly) CCContainerViewController *containerViewController;
 
 @end
