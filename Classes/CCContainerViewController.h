@@ -29,6 +29,8 @@
 
 - (CGRect)frameForTabBarItemAtIndex:(NSInteger)index;
 
+@property (nonatomic) BOOL enabledStatusBarBackground;
+
 @property (nonatomic) UIColor *sideBarBackground;
 @property (nonatomic) UIColor *buttonSelectedColor;
 @property (nonatomic) UIColor *buttonDefaultColor;

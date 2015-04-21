@@ -22,6 +22,7 @@
 @property UIView            *sideBarView;
 @property NSMutableArray    *buttons;
 @property (nonatomic) BOOL  builded;
+@property (nonatomic, weak) UIView *statusBarBackground;
 
 @property (nonatomic, strong) CAShapeLayer *detailViewMaskLayer;
 
@@ -156,6 +157,7 @@
     _sideBarBackground = sideBarBackground;
     [self.sideBarScrollView setBackgroundColor:sideBarBackground];
     [self.view setBackgroundColor:sideBarBackground];
+    if(_statusBarBackground) _statusBarBackground.backgroundColor = _sideBarBackground;
 }
 
 - (void)setButtonDefaultColor:(UIColor *)buttonDefaultColor {
@@ -191,7 +193,20 @@
 
 - (UIBezierPath *)detailBezierPath
 {
-    return [UIBezierPath bezierPathWithRoundedRect:_detailView.bounds
+    return [self detailBezierPathWithYOffset:0];
+}
+
+- (UIBezierPath *)detailBezierPathWithYOffset:(CGFloat)yOffset
+{
+    CGRect frame = _detailView.bounds;
+    
+    if(yOffset != 0.0)
+    {
+        frame.origin.y = yOffset;
+        frame.size.height -= yOffset;
+    }
+    
+    return [UIBezierPath bezierPathWithRoundedRect:frame
                                  byRoundingCorners:(UIRectCornerTopLeft|UIRectCornerBottomLeft)
                                        cornerRadii:CGSizeMake(_detailCornerRadius, _detailCornerRadius)];
 }
@@ -199,7 +214,7 @@
 - (void)updateDetailCorners
 {
     _detailViewMaskLayer.frame = _detailView.bounds;
-    _detailViewMaskLayer.path = [self detailBezierPath].CGPath;
+    _detailViewMaskLayer.path = [self detailBezierPathWithYOffset:(_statusBarBackground) ? 20.0 : 0.0].CGPath;
 }
 
 #pragma mark - Managing Views
@@ -238,6 +253,21 @@
     [self.view addSubview:self.sideBarScrollView];
     [self.sideBarScrollView setScrollsToTop:NO];
     [self.sideBarScrollView addSubview:self.sideBarView];
+    
+    if(_enabledStatusBarBackground)
+    {
+        UIView *statusBarBackground = [UIView new];
+        statusBarBackground.backgroundColor = _sideBarBackground;
+        [self.view addSubview:statusBarBackground];
+        _statusBarBackground = statusBarBackground;
+        
+        [_statusBarBackground mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.mas_equalTo(_sideBarView.mas_right);
+            make.top.mas_equalTo(self.view);
+            make.right.mas_equalTo(self.view);
+            make.height.mas_equalTo(@(20));
+        }];
+    }
     
     [self.sideBarScrollView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.mas_equalTo(self.view.mas_top);
