@@ -69,7 +69,7 @@
     CGSize imageSize = self.imageView.frame.size;
     self.titleEdgeInsets = UIEdgeInsetsMake((imageSize.height+gap)*sign, -imageSize.width, 0, 0);
     
-    CGSize titleSize = self.titleLabel.bounds.size;
+    CGSize titleSize = [self.titleLabel.text boundingRectWithSize:CGSizeMake(self.bounds.size.width, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName : self.titleLabel.font} context:nil].size;
     self.imageEdgeInsets = UIEdgeInsetsMake(-(titleSize.height+gap)*sign, 0, 0, -titleSize.width);
     
 }
