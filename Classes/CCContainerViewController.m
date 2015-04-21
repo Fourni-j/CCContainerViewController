@@ -74,6 +74,7 @@
     _buttonSpace = 22.0;
     _detailCornerRadius = 0.0;
     _transitionScale = 0.5;
+    _transitionDuration = 0.5;
 }
 
 #pragma mark - Accessor
@@ -500,7 +501,7 @@
         if(_animatedTransitionWithScale)
         {
             UIView *scalingView = _currentDetailViewController.view;
-            [UIView animateWithDuration:0.5 delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+            [UIView animateWithDuration:_transitionDuration delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^{
                 scalingView.transform = CGAffineTransformMakeScale(_transitionScale, _transitionScale);
                 scalingView.alpha = 0.0;
             } completion:^(BOOL finished) {
@@ -509,7 +510,7 @@
             }];
         }
         
-        [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:2.0 options:0 animations:^{
+        [UIView animateWithDuration:_transitionDuration delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:2.0 options:0 animations:^{
             [self.detailView layoutIfNeeded];
         }completion:^(BOOL finished) {
             [self removeCurrentDetailViewController];
