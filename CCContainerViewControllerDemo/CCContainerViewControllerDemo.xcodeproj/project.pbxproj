@@ -21,6 +21,7 @@
 		56E7ACA21AD7F4CB00DDBAFD /* mail.png in Resources */ = {isa = PBXBuildFile; fileRef = 56E7AC9F1AD7F4CB00DDBAFD /* mail.png */; };
 		56E7ACA31AD7F4CB00DDBAFD /* user.png in Resources */ = {isa = PBXBuildFile; fileRef = 56E7ACA01AD7F4CB00DDBAFD /* user.png */; };
 		A3DFF9978B08760DAF46BF56 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 181698E327A317F5C6F5375C /* libPods.a */; };
+		A42AC8E71AE64E500075C77A /* TestCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A42AC8E61AE64E500075C77A /* TestCollectionViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +58,8 @@
 		56E7AC9E1AD7F4CB00DDBAFD /* camera.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = camera.png; sourceTree = "<group>"; };
 		56E7AC9F1AD7F4CB00DDBAFD /* mail.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mail.png; sourceTree = "<group>"; };
 		56E7ACA01AD7F4CB00DDBAFD /* user.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = user.png; sourceTree = "<group>"; };
+		A42AC8E51AE64E500075C77A /* TestCollectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestCollectionViewController.h; sourceTree = "<group>"; };
+		A42AC8E61AE64E500075C77A /* TestCollectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestCollectionViewController.m; sourceTree = "<group>"; };
 		AB8744CED64B04AC500C178A /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		CFCDC6ABB74029F2ECE8905C /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -187,6 +190,8 @@
 			children = (
 				56C3D3901AD7ECBB006A2147 /* ViewController.h */,
 				56C3D3911AD7ECBB006A2147 /* ViewController.m */,
+				A42AC8E51AE64E500075C77A /* TestCollectionViewController.h */,
+				A42AC8E61AE64E500075C77A /* TestCollectionViewController.m */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -333,6 +338,7 @@
 				56C3D3B81AD7ECD9006A2147 /* CCBarItem.m in Sources */,
 				56C3D3BA1AD7ECD9006A2147 /* CCContainerViewController.m in Sources */,
 				56C3D3921AD7ECBB006A2147 /* ViewController.m in Sources */,
+				A42AC8E71AE64E500075C77A /* TestCollectionViewController.m in Sources */,
 				56C3D38F1AD7ECBB006A2147 /* AppDelegate.m in Sources */,
 				56C3D38C1AD7ECBB006A2147 /* main.m in Sources */,
 			);

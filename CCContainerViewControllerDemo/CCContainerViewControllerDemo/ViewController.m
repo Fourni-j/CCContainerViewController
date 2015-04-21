@@ -8,6 +8,7 @@
 
 #import "ViewController.h"
 #import "CCContainerViewController.h"
+#import "TestCollectionViewController.h"
 
 @interface ViewController ()
 
@@ -95,6 +96,26 @@
     CCContainerViewController *container = [CCContainerViewController new];
 
     [container setViewControllers:controllers animated:YES];
+    [container.view addSubview:[self closeButton]];
+    [self presentViewController:container animated:YES completion:nil];
+}
+
+- (IBAction)collectionView:(id)sender
+{
+    UICollectionViewFlowLayout *flowLayout = [[UICollectionViewFlowLayout alloc] init];
+    flowLayout.minimumLineSpacing = 4.0;
+    flowLayout.minimumInteritemSpacing = 0.0;
+    flowLayout.scrollDirection = UICollectionViewScrollDirectionVertical;
+    TestCollectionViewController *collection = [[TestCollectionViewController alloc] initWithCollectionViewLayout:flowLayout];
+    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:collection];
+    
+    CCBarItem *barItem1 = [[CCBarItem alloc] initWithTitle:@"User" image:[UIImage imageNamed:@"user"]];
+    [nav setBarItem:barItem1];
+    
+    CCContainerViewController *container = [CCContainerViewController new];
+    container.enabledStatusBarBackground = YES;
+    
+    [container setViewControllers:@[nav] animated:YES];
     [container.view addSubview:[self closeButton]];
     [self presentViewController:container animated:YES completion:nil];
 }
