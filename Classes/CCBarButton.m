@@ -50,6 +50,7 @@
 //        self.titleEdgeInsets = UIEdgeInsetsMake(40, -30, 0, 0);
 //        self.titleLabel.textAlignment = NSTextAlignmentCenter;
         self.badgeContainer.alpha = 0.0;
+        self.titleLabel.numberOfLines = 2;
         
         [self setContentHorizontalAlignment:UIControlContentHorizontalAlignmentCenter];
     }
@@ -59,6 +60,7 @@
 - (void)layoutSubviews {
     [super layoutSubviews];
     self.badgeContainer.layer.cornerRadius = self.badgeContainer.bounds.size.height/2;
+    self.titleLabel.preferredMaxLayoutWidth = self.bounds.size.width;
     [self centerImageAndButton:8 imageOnTop:YES];
 }
 
