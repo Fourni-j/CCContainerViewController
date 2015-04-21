@@ -73,6 +73,7 @@
     _sideBarWidth = 64.0;
     _buttonSpace = 22.0;
     _detailCornerRadius = 0.0;
+    _transitionScale = 0.5;
 }
 
 #pragma mark - Accessor
@@ -495,6 +496,19 @@
         [detailViewController.view mas_updateConstraints:^(MASConstraintMaker *make) {
             make.bottom.equalTo(self.detailView);
         }];
+        
+        if(_animatedTransitionWithScale)
+        {
+            UIView *scalingView = _currentDetailViewController.view;
+            [UIView animateWithDuration:0.5 delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+                scalingView.transform = CGAffineTransformMakeScale(_transitionScale, _transitionScale);
+                scalingView.alpha = 0.0;
+            } completion:^(BOOL finished) {
+                scalingView.transform = CGAffineTransformMakeScale(1.0, 1.0);
+                scalingView.alpha = 1.0;
+            }];
+        }
+        
         [UIView animateWithDuration:0.5 delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:2.0 options:0 animations:^{
             [self.detailView layoutIfNeeded];
         }completion:^(BOOL finished) {

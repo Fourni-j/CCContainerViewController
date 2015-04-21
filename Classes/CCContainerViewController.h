@@ -40,6 +40,8 @@
 @property (nonatomic) CGFloat sideBarWidth;
 @property (nonatomic) CGFloat buttonSpace;
 @property (nonatomic) BOOL shouldAnimateTransitions;
+@property (nonatomic) BOOL animatedTransitionWithScale;
+@property (nonatomic) CGFloat transitionScale; //0 to 1
 @property (nonatomic) CGFloat detailCornerRadius;
 
 @end
