@@ -43,6 +43,9 @@
     NSArray *controllers = [[NSArray alloc] initWithObjects:vc1, vc2, vc3, nil];
     
     CCContainerViewController *container = [CCContainerViewController new];
+    container.enabledStatusBarBackground = YES;
+    container.shouldAnimateTransitions = YES;
+    container.animatedTransitionWithScale = YES;
     
     [container setViewControllers:controllers animated:YES];
     [container.view addSubview:[self closeButton]];
