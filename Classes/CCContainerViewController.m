@@ -9,8 +9,9 @@
 #import <objc/runtime.h>
 #import "CCContainerViewController.h"
 #import "CCBarButton.h"
-
 #import <Masonry.h>
+
+#define SYSTEM_VERSION_LESS_THAN(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
 
 
 
@@ -246,7 +247,7 @@
 
 - (void)viewDidLayoutSubviews
 {
-    [self.view layoutSubviews];
+    if(SYSTEM_VERSION_LESS_THAN(@"8.0")) [self.view layoutSubviews];
     [super viewDidLayoutSubviews];
     [self updateDetailCorners];
 }
@@ -538,12 +539,12 @@
     
     if (animate) {
         __block MASConstraint *constraint = nil;
+        __block MASConstraint *hConstraint = nil;
         
         [detailViewController.view mas_remakeConstraints:^(MASConstraintMaker *make) {
             make.left.equalTo(self.detailView);
             make.right.equalTo(self.detailView);
-            make.height.equalTo(self.detailView);
-            make.width.equalTo(self.detailView);
+            hConstraint = make.height.equalTo(self.detailView);
         }];
         
         NSInteger currentIndex = [self.viewControllers indexOfObject:_currentDetailViewController];
@@ -558,10 +559,20 @@
                 constraint = make.bottom.equalTo(self.detailView.mas_top);
             }];
         }
+        
+        detailViewController.view.frame = self.detailView.bounds;
+        
+        [self.detailView setNeedsUpdateConstraints];
+        [self.detailView updateConstraintsIfNeeded];
+        
+        [self.detailView setNeedsLayout];
         [self.detailView layoutIfNeeded];
+        
         [constraint uninstall];
+        [hConstraint uninstall];
         [detailViewController.view mas_updateConstraints:^(MASConstraintMaker *make) {
             make.bottom.equalTo(self.detailView);
+            make.top.equalTo(self.detailView);
         }];
         
         if(_animatedTransitionWithScale)
@@ -591,9 +602,8 @@
         [detailViewController.view mas_makeConstraints:^(MASConstraintMaker *make) {
             make.left.equalTo(self.detailView);
             make.right.equalTo(self.detailView);
-            make.height.equalTo(self.detailView);
-            make.width.equalTo(self.detailView);
             make.top.equalTo(self.detailView);
+            make.bottom.equalTo(self.detailView);
         }];
         [self.view layoutIfNeeded];
         [self activateButtons];
@@ -670,6 +680,7 @@ static char const * const barItemKey = "cccontainerviewcontroller.barItem.key";
     }
     return nil;
 }
+
 
 @end
 
