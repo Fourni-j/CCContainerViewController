@@ -502,7 +502,19 @@
 
 - (void)buttonClicked:(id)sender {
     
-    if ((_delegate && (![_delegate respondsToSelector:@selector(customContainerViewController:shouldSelectViewController:)] || ![_delegate customContainerViewController:self shouldSelectViewController:[self.viewControllers objectAtIndex:[sender tag]]])) || self.selectedIndex == [sender tag]) {
+    if ((_delegate && (![_delegate respondsToSelector:@selector(customContainerViewController:shouldSelectViewController:)] || ![_delegate customContainerViewController:self shouldSelectViewController:[self.viewControllers objectAtIndex:[sender tag]]]))) {
+        return;
+    }
+    
+    if(self.selectedIndex == [sender tag])
+    {
+        if(_enablePopToNavigationRoot)
+        {
+            if([self.selectedViewController isKindOfClass:[UINavigationController class]])
+            {
+                [(UINavigationController *)self.selectedViewController popToRootViewControllerAnimated:YES];
+            }
+        }
         return;
     }
     
@@ -565,7 +577,7 @@
         }
         
         [UIView animateWithDuration:_transitionDuration delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:2.0 options:0 animations:^{
-            [self.detailView layoutIfNeeded];
+            [self.view layoutIfNeeded];
         }completion:^(BOOL finished) {
             [self removeCurrentDetailViewController];
             self.currentDetailViewController = detailViewController;
@@ -583,7 +595,7 @@
             make.width.equalTo(self.detailView);
             make.top.equalTo(self.detailView);
         }];
-        [self.detailView layoutIfNeeded];
+        [self.view layoutIfNeeded];
         [self activateButtons];
     }
 }

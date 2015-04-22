@@ -49,6 +49,7 @@ typedef NS_ENUM(NSInteger, CCContainerSelectionStyle) {
 @property (nonatomic) CGFloat transitionScale; //0 to 1
 @property (nonatomic) CGFloat transitionDuration;
 @property (nonatomic) CGFloat detailCornerRadius;
+@property (nonatomic) BOOL enablePopToNavigationRoot;
 
 @property (nonatomic) CCContainerSelectionStyle containerSelectionStyle;
 
