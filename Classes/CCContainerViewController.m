@@ -29,6 +29,8 @@
 
 @property (nonatomic, strong) CAShapeLayer *detailViewMaskLayer;
 
+@property (nonatomic, strong) MASConstraint *selectedOverlayRight;
+
 @end
 
 @implementation CCContainerViewController
@@ -263,6 +265,7 @@
     // TMP STUFF
     
     self.selectedOverlay = [[UIView alloc] init];
+    self.selectedOverlay.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:0.15];
     
     UIView *tmpRedView = [[UIView alloc] init];
     tmpRedView.backgroundColor = [UIColor redColor];
@@ -271,17 +274,6 @@
     [tmpRedView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.mas_equalTo(self.selectedOverlay);
         make.width.mas_equalTo(2);
-        make.top.mas_equalTo(self.selectedOverlay);
-        make.bottom.mas_equalTo(self.selectedOverlay);
-    }];
-    
-    UIView *tmpWhiteView = [[UIView alloc] init];
-    tmpWhiteView.backgroundColor = [UIColor whiteColor];
-    tmpWhiteView.alpha = 0.15;
-    [self.selectedOverlay addSubview:tmpWhiteView];
-    [tmpWhiteView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(tmpRedView);
-        make.right.mas_equalTo(self.selectedOverlay);
         make.top.mas_equalTo(self.selectedOverlay);
         make.bottom.mas_equalTo(self.selectedOverlay);
     }];
@@ -356,7 +348,7 @@
             make.top.mas_equalTo(self.buttons[self.selectedIndex]);
             make.height.mas_equalTo(self.buttons[self.selectedIndex]);
             make.left.mas_equalTo(self.sideBarScrollView);
-            make.right.mas_equalTo(self.sideBarScrollView);
+            _selectedOverlayRight = make.right.mas_equalTo(self.sideBarScrollView).insets(UIEdgeInsetsMake(0, 0, 0, -_detailCornerRadius));
         }];
     }
     
