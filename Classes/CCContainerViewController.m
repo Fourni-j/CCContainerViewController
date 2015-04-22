@@ -20,6 +20,9 @@
 @property UIView            *detailView;
 @property UIScrollView      *sideBarScrollView;
 @property UIView            *sideBarView;
+
+@property UIView            *selectedOverlay;
+
 @property NSMutableArray    *buttons;
 @property (nonatomic) BOOL  builded;
 @property (nonatomic, weak) UIView *statusBarBackground;
@@ -75,6 +78,7 @@
     _detailCornerRadius = 0.0;
     _transitionScale = 0.5;
     _transitionDuration = 0.5;
+    _containerSelectionStyle = CCContainerSelectionStyleOverlay;
 }
 
 #pragma mark - Accessor
@@ -125,13 +129,30 @@
     
     [self presentDetailViewController:self.viewControllers[selectedIndex] animated:animate];
     
-    [[self.buttons objectAtIndex:self.selectedIndex] setTintColor:self.buttonDefaultColor];
-    [[self.buttons objectAtIndex:self.selectedIndex] setTitleColor:self.buttonTextDefaultColor forState:UIControlStateNormal];
     
+    if (_containerSelectionStyle == CCContainerSelectionStyleTint) {
+        [[self.buttons objectAtIndex:self.selectedIndex] setTintColor:self.buttonDefaultColor];
+        [[self.buttons objectAtIndex:self.selectedIndex] setTitleColor:self.buttonTextDefaultColor forState:UIControlStateNormal];
+    }
     _selectedIndex = selectedIndex;
     
-    [[self.buttons objectAtIndex:self.selectedIndex] setTintColor:self.buttonSelectedColor];
-    [[self.buttons objectAtIndex:self.selectedIndex] setTitleColor:self.buttonTextSelectedColor forState:UIControlStateNormal];
+    if (_containerSelectionStyle == CCContainerSelectionStyleTint) {
+        [[self.buttons objectAtIndex:self.selectedIndex] setTintColor:self.buttonSelectedColor];
+        [[self.buttons objectAtIndex:self.selectedIndex] setTitleColor:self.buttonTextSelectedColor forState:UIControlStateNormal];
+    }
+    
+    if (_containerSelectionStyle == CCContainerSelectionStyleOverlay) {
+        [self.selectedOverlay mas_remakeConstraints:^(MASConstraintMaker *make) {
+            make.top.mas_equalTo(self.buttons[self.selectedIndex]);
+            make.height.mas_equalTo(self.buttons[self.selectedIndex]);
+            make.left.mas_equalTo(self.sideBarScrollView);
+            make.right.mas_equalTo(self.sideBarScrollView);
+        }];
+        
+        [UIView animateWithDuration:0.15 animations:^{
+            [self.view layoutIfNeeded];
+        }];
+    }
 }
 
 - (NSUInteger)selectedIndex {
@@ -239,6 +260,35 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    // TMP STUFF
+    
+    self.selectedOverlay = [[UIView alloc] init];
+    
+    UIView *tmpRedView = [[UIView alloc] init];
+    tmpRedView.backgroundColor = [UIColor redColor];
+    [self.selectedOverlay addSubview:tmpRedView];
+    
+    [tmpRedView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(self.selectedOverlay);
+        make.width.mas_equalTo(2);
+        make.top.mas_equalTo(self.selectedOverlay);
+        make.bottom.mas_equalTo(self.selectedOverlay);
+    }];
+    
+    UIView *tmpWhiteView = [[UIView alloc] init];
+    tmpWhiteView.backgroundColor = [UIColor whiteColor];
+    tmpWhiteView.alpha = 0.15;
+    [self.selectedOverlay addSubview:tmpWhiteView];
+    [tmpWhiteView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.mas_equalTo(tmpRedView);
+        make.right.mas_equalTo(self.selectedOverlay);
+        make.top.mas_equalTo(self.selectedOverlay);
+        make.bottom.mas_equalTo(self.selectedOverlay);
+    }];
+    
+    
+    // TMP STUFF
+    
     self.detailView = [[UIView alloc] init];
     self.sideBarScrollView = [[UIScrollView alloc] init];
     self.sideBarView = [[UIView alloc] init];
@@ -295,8 +345,20 @@
     
     self.sideBarScrollView.contentInset = UIEdgeInsetsMake(20, 0, 0, 0);
     
+    if (_containerSelectionStyle == CCContainerSelectionStyleOverlay)
+        [self.sideBarScrollView addSubview:self.selectedOverlay];
+    
     [self buildButtonsAnimated:NO];
     _builded = YES;
+    
+    if (_containerSelectionStyle == CCContainerSelectionStyleOverlay) {
+        [self.selectedOverlay mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.top.mas_equalTo(self.buttons[self.selectedIndex]);
+            make.height.mas_equalTo(self.buttons[self.selectedIndex]);
+            make.left.mas_equalTo(self.sideBarScrollView);
+            make.right.mas_equalTo(self.sideBarScrollView);
+        }];
+    }
     
     if (self.viewControllers) {
         self.selectedIndex = _selectedIndex;
@@ -424,7 +486,7 @@
     
     if ([keyPath isEqualToString:@"enabled"]) {
         [[self.buttons objectAtIndex:index] setEnabled:[[change objectForKey:NSKeyValueChangeNewKey] boolValue]];
-
+        
         if ([[self.buttons objectAtIndex:index] isEnabled]) {
             [[self.buttons objectAtIndex:index] setAlpha:1.0];
         } else {

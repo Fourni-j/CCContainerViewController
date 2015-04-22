@@ -12,6 +12,11 @@
 
 @protocol CCContainerViewControllerDelegate;
 
+typedef NS_ENUM(NSInteger, CCContainerSelectionStyle) {
+    CCContainerSelectionStyleOverlay = 1,
+    CCContainerSelectionStyleTint = 2
+};
+
 
 @interface CCContainerViewController : UIViewController
 
@@ -44,6 +49,8 @@
 @property (nonatomic) CGFloat transitionScale; //0 to 1
 @property (nonatomic) CGFloat transitionDuration;
 @property (nonatomic) CGFloat detailCornerRadius;
+
+@property (nonatomic) CCContainerSelectionStyle containerSelectionStyle;
 
 @end
 
