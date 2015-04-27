@@ -80,13 +80,13 @@
     
     _badgeValue = badgeValue;
     
-    if ((_badgeValue == nil || [_badgeValue isEqualToString:@""]) && _badgeContainer.alpha > 0) {
+    if ((_badgeValue == nil || [_badgeValue isKindOfClass:[NSNull class]] || [_badgeValue isEqualToString:@""]) && _badgeContainer.alpha > 0) {
         [UIView animateWithDuration:0.15 animations:^{
             _badgeContainer.alpha = 0.0;
         } completion:^(BOOL finished) {
             _badgeLabel.text = nil;
         }];
-    } else if (_badgeValue && [_badgeValue length] > 0) {
+    } else if (_badgeValue && [_badgeValue isKindOfClass:[NSString class]] && [_badgeValue length] > 0) {
         _badgeLabel.text = _badgeValue;
         [self layoutIfNeeded];
         if (_badgeContainer.alpha == 0) {
