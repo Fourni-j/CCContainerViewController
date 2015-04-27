@@ -82,6 +82,8 @@
     _transitionScale = 0.5;
     _transitionDuration = 0.5;
     _containerSelectionStyle = CCContainerSelectionStyleOverlay;
+    _transitionStyle = CCContainerTrasitionAnimationStyleSlide;
+    _buttonsTopMargin = 20.0;
 }
 
 #pragma mark - Accessor
@@ -103,8 +105,14 @@
 }
 
 - (void)setViewControllers:(NSArray *)controllers animated:(BOOL)animated {
+    [self removeCurrentDetailViewController];
+    [self removeObserverFromBarItems];
     _viewControllers = controllers;
-    if(_builded) [self buildButtonsAnimated:animated];
+    if(_builded)
+    {
+        [self buildButtonsAnimated:animated];
+        [self setSelectedIndex:0 animated:animated];
+    }
 }
 
 - (void)setViewControllers:(NSArray *)viewControllers {
@@ -195,7 +203,15 @@
 
 - (void)setButtonSelectedColor:(UIColor *)buttonSelectedColor {
     _buttonSelectedColor = buttonSelectedColor;
-    if(self.selectedIndex < self.buttons.count) [[self.buttons objectAtIndex:self.selectedIndex] setBackgroundColor:_buttonSelectedColor];
+    if(self.selectedOverlay)
+    {
+        UIView *line = [self.selectedOverlay viewWithTag:777];
+        if(line)
+        {
+            line.backgroundColor = buttonSelectedColor;
+        }
+    }
+    else if(self.selectedIndex < self.buttons.count) [[self.buttons objectAtIndex:self.selectedIndex] setTintColor:_buttonSelectedColor];
 }
 
 - (void)setButtonTextDefaultColor:(UIColor *)buttonTextDefaultColor {
@@ -269,7 +285,8 @@
     self.selectedOverlay.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:0.15];
     
     UIView *tmpRedView = [[UIView alloc] init];
-    tmpRedView.backgroundColor = [UIColor redColor];
+    tmpRedView.backgroundColor = _buttonSelectedColor;
+    tmpRedView.tag = 777;
     [self.selectedOverlay addSubview:tmpRedView];
     
     [tmpRedView mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -336,7 +353,7 @@
         make.left.mas_equalTo(self.sideBarScrollView.mas_right);
     }];
     
-    self.sideBarScrollView.contentInset = UIEdgeInsetsMake(20, 0, 0, 0);
+    self.sideBarScrollView.contentInset = UIEdgeInsetsMake(_buttonsTopMargin, 0, 0, 0);
     
     if (_containerSelectionStyle == CCContainerSelectionStyleOverlay)
         [self.sideBarScrollView addSubview:self.selectedOverlay];
@@ -358,6 +375,19 @@
     }
 }
 
+
+- (void)removeObserverFromBarItems
+{
+    if(_viewControllers.count == 0) return;
+    
+    for (UIViewController *ctrl in _viewControllers)
+    {
+        [ctrl.barItem removeObserver:self forKeyPath:@"title" context:nil];
+        [ctrl.barItem removeObserver:self forKeyPath:@"image" context:nil];
+        [ctrl.barItem removeObserver:self forKeyPath:@"enabled" context:nil];
+        [ctrl.barItem removeObserver:self forKeyPath:@"badgeValue" context:nil];
+    }
+}
 
 - (void)buildButtonsAnimated:(BOOL)animate
 {
@@ -449,6 +479,15 @@
     [self.sideBarScrollView setNeedsLayout];
     [self.sideBarScrollView layoutIfNeeded];
     
+    if(_builded)
+    {
+        for (UIButton *btn in _buttons)
+        {
+            [btn setNeedsLayout];
+            [btn layoutIfNeeded];
+        }
+    }
+    
     if(animate)
     {
         [UIView animateWithDuration:0.2 animations:^{
@@ -519,7 +558,7 @@
         return;
     }
     
-    [self setSelectedIndex:[sender tag] animated:_shouldAnimateTransitions];
+    [self setSelectedIndex:[sender tag] animated:(_transitionStyle != CCContainerTrasitionAnimationStyleNone)];
 }
 
 - (void)presentDetailViewController:(UIViewController *)detailViewController
@@ -538,63 +577,85 @@
     [self.detailView addSubview:detailViewController.view];
     
     if (animate) {
-        __block MASConstraint *constraint = nil;
-        __block MASConstraint *hConstraint = nil;
         
-        [detailViewController.view mas_remakeConstraints:^(MASConstraintMaker *make) {
-            make.left.equalTo(self.detailView);
-            make.right.equalTo(self.detailView);
-            hConstraint = make.height.equalTo(self.detailView);
-        }];
-        
-        NSInteger currentIndex = [self.viewControllers indexOfObject:_currentDetailViewController];
-        NSInteger nextIndex = [self.viewControllers indexOfObject:detailViewController];
-        
-        if (nextIndex > currentIndex) {
-            [detailViewController.view mas_updateConstraints:^(MASConstraintMaker *make) {
-                constraint = make.top.equalTo(self.detailView.mas_bottom);
-            }];
-        } else {
-            [detailViewController.view mas_updateConstraints:^(MASConstraintMaker *make) {
-                constraint = make.bottom.equalTo(self.detailView.mas_top);
-            }];
-        }
-        
-        detailViewController.view.frame = self.detailView.bounds;
-        
-        [self.detailView setNeedsUpdateConstraints];
-        [self.detailView updateConstraintsIfNeeded];
-        
-        [self.detailView setNeedsLayout];
-        [self.detailView layoutIfNeeded];
-        
-        [constraint uninstall];
-        [hConstraint uninstall];
-        [detailViewController.view mas_updateConstraints:^(MASConstraintMaker *make) {
-            make.bottom.equalTo(self.detailView);
-            make.top.equalTo(self.detailView);
-        }];
-        
-        if(_animatedTransitionWithScale)
+        if(_transitionStyle == CCContainerTrasitionAnimationStyleSlide || _transitionStyle == CCContainerTrasitionAnimationStyleSlideAndScale)
         {
-            UIView *scalingView = _currentDetailViewController.view;
-            [UIView animateWithDuration:_transitionDuration delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^{
-                scalingView.transform = CGAffineTransformMakeScale(_transitionScale, _transitionScale);
-                scalingView.alpha = 0.0;
-            } completion:^(BOOL finished) {
-                scalingView.transform = CGAffineTransformMakeScale(1.0, 1.0);
-                scalingView.alpha = 1.0;
+            __block MASConstraint *constraint = nil;
+            __block MASConstraint *hConstraint = nil;
+            
+            [detailViewController.view mas_remakeConstraints:^(MASConstraintMaker *make) {
+                make.left.equalTo(self.detailView);
+                make.right.equalTo(self.detailView);
+                hConstraint = make.height.equalTo(self.detailView);
+            }];
+            
+            NSInteger currentIndex = [self.viewControllers indexOfObject:_currentDetailViewController];
+            NSInteger nextIndex = [self.viewControllers indexOfObject:detailViewController];
+            
+            if (nextIndex > currentIndex) {
+                [detailViewController.view mas_updateConstraints:^(MASConstraintMaker *make) {
+                    constraint = make.top.equalTo(self.detailView.mas_bottom);
+                }];
+            } else {
+                [detailViewController.view mas_updateConstraints:^(MASConstraintMaker *make) {
+                    constraint = make.bottom.equalTo(self.detailView.mas_top);
+                }];
+            }
+            
+            detailViewController.view.frame = self.detailView.bounds;
+            
+            [self.detailView setNeedsUpdateConstraints];
+            [self.detailView updateConstraintsIfNeeded];
+            
+            [self.detailView setNeedsLayout];
+            [self.detailView layoutIfNeeded];
+            
+            [constraint uninstall];
+            [hConstraint uninstall];
+            [detailViewController.view mas_updateConstraints:^(MASConstraintMaker *make) {
+                make.bottom.equalTo(self.detailView);
+                make.top.equalTo(self.detailView);
+            }];
+            
+            if(_transitionStyle == CCContainerTrasitionAnimationStyleSlideAndScale)
+            {
+                UIView *scalingView = _currentDetailViewController.view;
+                [UIView animateWithDuration:_transitionDuration delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+                    scalingView.transform = CGAffineTransformMakeScale(_transitionScale, _transitionScale);
+                    scalingView.alpha = 0.0;
+                } completion:^(BOOL finished) {
+                    scalingView.transform = CGAffineTransformMakeScale(1.0, 1.0);
+                    scalingView.alpha = 1.0;
+                }];
+            }
+            
+            [UIView animateWithDuration:_transitionDuration delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:2.0 options:0 animations:^{
+                [self.view layoutIfNeeded];
+            }completion:^(BOOL finished) {
+                [self removeCurrentDetailViewController];
+                self.currentDetailViewController = detailViewController;
+                [detailViewController didMoveToParentViewController:self];
+                [self activateButtons];
             }];
         }
-        
-        [UIView animateWithDuration:_transitionDuration delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:2.0 options:0 animations:^{
-            [self.view layoutIfNeeded];
-        }completion:^(BOOL finished) {
-            [self removeCurrentDetailViewController];
-            self.currentDetailViewController = detailViewController;
-            [detailViewController didMoveToParentViewController:self];
-            [self activateButtons];
-        }];
+        else
+        {
+            detailViewController.view.alpha = 0;
+            [detailViewController.view mas_remakeConstraints:^(MASConstraintMaker *make) {
+                make.edges.equalTo(self.detailView);
+            }];
+            
+            [self.detailView layoutIfNeeded];
+            
+            [UIView animateWithDuration:_transitionDuration delay:0.0 options:UIViewAnimationOptionCurveEaseIn animations:^{
+                detailViewController.view.alpha = 1;
+            } completion:^(BOOL finished) {
+                [self removeCurrentDetailViewController];
+                self.currentDetailViewController = detailViewController;
+                [detailViewController didMoveToParentViewController:self];
+                [self activateButtons];
+            }];
+        }
     } else {
         [self removeCurrentDetailViewController];
         self.currentDetailViewController = detailViewController;
