@@ -36,6 +36,8 @@
 
 @property (nonatomic, strong) MASConstraint *selectedOverlayRight;
 @property (nonatomic, strong) MASConstraint *leftDetailView;
+@property (nonatomic, strong) MASConstraint *landscapeViewWidth;
+@property (nonatomic, strong) MASConstraint *portraitViewWidth;
 
 @end
 
@@ -353,10 +355,16 @@
         make.width.mas_equalTo(self.sideBarScrollView);
     }];
     
+    UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
+    CGFloat w = MAX([UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
+    w = w - self.sideBarWidth;
     [self.detailView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.mas_equalTo(self.view.mas_top);
         make.bottom.mas_equalTo(self.view.mas_bottom);
-        make.width.mas_equalTo(self.view);
+        if (orientation == UIDeviceOrientationPortrait || orientation == UIDeviceOrientationPortraitUpsideDown)
+            self.portraitViewWidth = make.width.mas_equalTo(self.view);
+        else if (orientation == UIDeviceOrientationLandscapeLeft || orientation == UIDeviceOrientationLandscapeRight)
+            self.landscapeViewWidth = make.width.mas_equalTo(@(w));
         self.leftDetailView = make.left.mas_equalTo(self.view).with.insets(UIEdgeInsetsMake(0, self.sideBarWidth, 0, 0));
     }];
     
@@ -564,6 +572,18 @@
                 }
             }
         }
+        if (self.portraitViewWidth)
+            [self.portraitViewWidth uninstall];
+        if (!self.landscapeViewWidth)
+        {
+            CGFloat w = MAX([UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
+            w = w - self.sideBarWidth;
+            [self.detailView mas_updateConstraints:^(MASConstraintMaker *make) {
+                self.landscapeViewWidth = make.width.mas_equalTo(@(w));
+            }];
+        }
+            [self.landscapeViewWidth install];
+        
         [self.view removeGestureRecognizer:self.gesture];
         [self.touchesView removeFromSuperview];
         self.touchesView = nil;
@@ -581,6 +601,16 @@
                     ctrl.navigationItem.leftBarButtonItem = leftButton;
                 }
             }
+            
+            if (self.landscapeViewWidth)
+                [self.landscapeViewWidth uninstall];
+            if (!self.portraitViewWidth) {
+                [self.detailView mas_updateConstraints:^(MASConstraintMaker *make) {
+                    self.portraitViewWidth = make.width.mas_equalTo(self.view);
+                }];
+            }
+            [self.portraitViewWidth install];
+            
             if (!self.gesture) {
                 self.gesture = [[UIScreenEdgePanGestureRecognizer alloc] initWithTarget:self action:@selector(showMenu)];
                 self.gesture.edges = UIRectEdgeLeft;
