@@ -565,6 +565,8 @@
             }
         }
         [self.view removeGestureRecognizer:self.gesture];
+        [self.touchesView removeFromSuperview];
+        self.touchesView = nil;
         [UIView animateWithDuration:0.5 animations:^{
             [self.view layoutIfNeeded];
         }];
