@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		561E4E231AEFA0B3003DD4AF /* CCView.m in Sources */ = {isa = PBXBuildFile; fileRef = 561E4E221AEFA0B3003DD4AF /* CCView.m */; };
 		56C3D38C1AD7ECBB006A2147 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 56C3D38B1AD7ECBB006A2147 /* main.m */; };
 		56C3D38F1AD7ECBB006A2147 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 56C3D38E1AD7ECBB006A2147 /* AppDelegate.m */; };
 		56C3D3921AD7ECBB006A2147 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 56C3D3911AD7ECBB006A2147 /* ViewController.m */; };
@@ -36,6 +37,8 @@
 
 /* Begin PBXFileReference section */
 		181698E327A317F5C6F5375C /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		561E4E211AEFA0B3003DD4AF /* CCView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CCView.h; path = ../../Classes/CCView.h; sourceTree = "<group>"; };
+		561E4E221AEFA0B3003DD4AF /* CCView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CCView.m; path = ../../Classes/CCView.m; sourceTree = "<group>"; };
 		56C3D3861AD7ECBB006A2147 /* CCContainerViewControllerDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CCContainerViewControllerDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		56C3D38A1AD7ECBB006A2147 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		56C3D38B1AD7ECBB006A2147 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -166,6 +169,8 @@
 		56C3D3BB1AD7EE3C006A2147 /* CCContainerViewController */ = {
 			isa = PBXGroup;
 			children = (
+				561E4E211AEFA0B3003DD4AF /* CCView.h */,
+				561E4E221AEFA0B3003DD4AF /* CCView.m */,
 				56C3D3AF1AD7ECD9006A2147 /* CCBarButton.h */,
 				56C3D3B01AD7ECD9006A2147 /* CCBarButton.m */,
 				56C3D3B11AD7ECD9006A2147 /* CCBarItem.h */,
@@ -338,6 +343,7 @@
 				56C3D3B81AD7ECD9006A2147 /* CCBarItem.m in Sources */,
 				56C3D3BA1AD7ECD9006A2147 /* CCContainerViewController.m in Sources */,
 				56C3D3921AD7ECBB006A2147 /* ViewController.m in Sources */,
+				561E4E231AEFA0B3003DD4AF /* CCView.m in Sources */,
 				A42AC8E71AE64E500075C77A /* TestCollectionViewController.m in Sources */,
 				56C3D38F1AD7ECBB006A2147 /* AppDelegate.m in Sources */,
 				56C3D38C1AD7ECBB006A2147 /* main.m in Sources */,
