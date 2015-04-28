@@ -9,6 +9,7 @@
 #import <objc/runtime.h>
 #import "CCContainerViewController.h"
 #import "CCBarButton.h"
+#import "CCView.h"
 #import <Masonry.h>
 
 #define SYSTEM_VERSION_LESS_THAN(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
@@ -24,6 +25,9 @@
 
 @property UIView            *selectedOverlay;
 
+@property CCView            *touchesView;
+@property UIScreenEdgePanGestureRecognizer *gesture;
+
 @property NSMutableArray    *buttons;
 @property (nonatomic) BOOL  builded;
 @property (nonatomic, weak) UIView *statusBarBackground;
@@ -31,6 +35,7 @@
 @property (nonatomic, strong) CAShapeLayer *detailViewMaskLayer;
 
 @property (nonatomic, strong) MASConstraint *selectedOverlayRight;
+@property (nonatomic, strong) MASConstraint *leftDetailView;
 
 @end
 
@@ -279,6 +284,9 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceOrientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
+    
     // TMP STUFF
     
     self.selectedOverlay = [[UIView alloc] init];
@@ -296,9 +304,8 @@
         make.bottom.mas_equalTo(self.selectedOverlay);
     }];
     
-    
     // TMP STUFF
-    
+
     self.detailView = [[UIView alloc] init];
     self.sideBarScrollView = [[UIScrollView alloc] init];
     self.sideBarView = [[UIView alloc] init];
@@ -311,8 +318,8 @@
     
     [self.sideBarScrollView setBackgroundColor:self.sideBarBackground];
     [self.view setBackgroundColor:self.sideBarBackground];
-    [self.view addSubview:self.detailView];
     [self.view addSubview:self.sideBarScrollView];
+    [self.view addSubview:self.detailView];
     [self.sideBarScrollView setScrollsToTop:NO];
     [self.sideBarScrollView addSubview:self.sideBarView];
     
@@ -349,8 +356,8 @@
     [self.detailView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.mas_equalTo(self.view.mas_top);
         make.bottom.mas_equalTo(self.view.mas_bottom);
-        make.right.mas_equalTo(self.view.mas_right);
-        make.left.mas_equalTo(self.sideBarScrollView.mas_right);
+        make.width.mas_equalTo(self.view);
+        self.leftDetailView = make.left.mas_equalTo(self.view).with.insets(UIEdgeInsetsMake(0, self.sideBarWidth, 0, 0));
     }];
     
     self.sideBarScrollView.contentInset = UIEdgeInsetsMake(_buttonsTopMargin, 0, 0, 0);
@@ -373,6 +380,8 @@
     if (self.viewControllers) {
         self.selectedIndex = _selectedIndex;
     }
+    
+    [self updateInterfaceForOrientation:[[UIDevice currentDevice] orientation]];
 }
 
 
@@ -532,6 +541,81 @@
     } else if ([keyPath isEqualToString:@"badgeValue"]) {
         [[self.buttons objectAtIndex:index] setBadgeValue:[change objectForKey:NSKeyValueChangeNewKey]];
     }
+}
+
+- (void)deviceOrientationDidChange:(NSNotification *)notification {
+    UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
+
+    if (orientation == UIDeviceOrientationFaceDown || orientation == UIDeviceOrientationFaceUp || !_hideMenuInPortrait)
+        return;
+    
+    [self updateInterfaceForOrientation:orientation];
+}
+
+- (void)updateInterfaceForOrientation:(UIDeviceOrientation)orientation {
+    if (orientation == UIDeviceOrientationLandscapeRight || orientation == UIDeviceOrientationLandscapeLeft) {
+        if (_delegate && [_delegate respondsToSelector:@selector(customContainerViewController:needControllerToShowBarButtonItemInViewController:)]) {
+            self.leftDetailView.insets(UIEdgeInsetsMake(0, self.sideBarWidth, 0, 0));
+            for (UIViewController *tmp in self.viewControllers) {
+               
+                UIViewController *ctrl = [_delegate customContainerViewController:self needControllerToShowBarButtonItemInViewController:tmp];
+                if (ctrl) {
+                    ctrl.navigationItem.leftBarButtonItem = nil;
+                }
+            }
+        }
+        [self.view removeGestureRecognizer:self.gesture];
+        [UIView animateWithDuration:0.5 animations:^{
+            [self.view layoutIfNeeded];
+        }];
+    } else if (orientation == UIDeviceOrientationPortrait || orientation == UIDeviceOrientationPortraitUpsideDown) {
+        if (_delegate && [_delegate respondsToSelector:@selector(customContainerViewController:needControllerToShowBarButtonItemInViewController:)]) {
+            
+            self.leftDetailView.insets(UIEdgeInsetsZero);
+            for (UIViewController*tmp in self.viewControllers) {
+                UIViewController *ctrl = [_delegate customContainerViewController:self needControllerToShowBarButtonItemInViewController:tmp];
+                if (ctrl) {
+                    UIBarButtonItem *leftButton = [[UIBarButtonItem alloc] initWithImage:self.leftBarButtonImage style:UIBarButtonItemStylePlain target:self action:@selector(showMenu)];
+                    ctrl.navigationItem.leftBarButtonItem = leftButton;
+                }
+            }
+            if (!self.gesture) {
+                self.gesture = [[UIScreenEdgePanGestureRecognizer alloc] initWithTarget:self action:@selector(showMenu)];
+                self.gesture.edges = UIRectEdgeLeft;
+            }
+            [self.view addGestureRecognizer:self.gesture];
+        }
+        [UIView animateWithDuration:0.5 animations:^{
+            [self.view layoutIfNeeded];
+        }];
+    }
+}
+
+- (void)showMenu {
+    if (self.touchesView)
+        return;
+    
+    self.touchesView = [[CCView alloc] init];
+    self.touchesView.delegate = self;
+    [self.view addSubview:self.touchesView];
+    [self.touchesView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.edges.mas_equalTo(self.detailView);
+    }];
+
+    
+    self.leftDetailView.insets(UIEdgeInsetsMake(0, self.sideBarWidth, 0, 0));
+    [UIView animateWithDuration:0.2 animations:^{
+        [self.view layoutIfNeeded];
+    }];
+}
+
+- (void)hideMenu {
+    [self.touchesView removeFromSuperview];
+    self.touchesView = nil;
+    self.leftDetailView.insets(UIEdgeInsetsZero);
+    [UIView animateWithDuration:0.2 animations:^{
+        [self.view layoutIfNeeded];
+    }];
 }
 
 
@@ -710,6 +794,10 @@
 
 - (NSUInteger)supportedInterfaceOrientations {
     return [[self selectedViewController] supportedInterfaceOrientations];
+}
+
+- (void)touchesInView {
+    [self hideMenu];
 }
 
 @end

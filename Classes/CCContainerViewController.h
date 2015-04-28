@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "CCBarItem.h"
+#import "CCView.h"
 //#import "UIViewController+CCBarItem.h"
 
 @protocol CCContainerViewControllerDelegate;
@@ -25,7 +26,7 @@ typedef NS_ENUM(NSInteger, CCContainerTrasitionAnimationStyle) {
 };
 
 
-@interface CCContainerViewController : UIViewController
+@interface CCContainerViewController : UIViewController <CCViewDelegate>
 
 - (instancetype)initWithControllers:(NSArray *)controllers;
 
@@ -60,11 +61,16 @@ typedef NS_ENUM(NSInteger, CCContainerTrasitionAnimationStyle) {
 
 @property (nonatomic) CCContainerSelectionStyle containerSelectionStyle;
 
+@property (nonatomic) BOOL  hideMenuInPortrait;
+
+@property (nonatomic, strong) UIImage *leftBarButtonImage;
+
 @end
 
 @protocol CCContainerViewControllerDelegate <NSObject>
 @optional
 - (BOOL)customContainerViewController:(CCContainerViewController*)container shouldSelectViewController:(UIViewController *)viewController;
+- (UIViewController *)customContainerViewController:(CCContainerViewController *)container needControllerToShowBarButtonItemInViewController:(UIViewController *)controller;
 
 @end
 

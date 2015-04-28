@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		566D15891AEF956D00C743F0 /* CCView.m in Sources */ = {isa = PBXBuildFile; fileRef = 566D15881AEF956D00C743F0 /* CCView.m */; };
 		56C3D38C1AD7ECBB006A2147 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 56C3D38B1AD7ECBB006A2147 /* main.m */; };
 		56C3D38F1AD7ECBB006A2147 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 56C3D38E1AD7ECBB006A2147 /* AppDelegate.m */; };
 		56C3D3921AD7ECBB006A2147 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 56C3D3911AD7ECBB006A2147 /* ViewController.m */; };
@@ -36,6 +37,8 @@
 
 /* Begin PBXFileReference section */
 		181698E327A317F5C6F5375C /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		566D15871AEF956D00C743F0 /* CCView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCView.h; sourceTree = "<group>"; };
+		566D15881AEF956D00C743F0 /* CCView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CCView.m; sourceTree = "<group>"; };
 		56C3D3861AD7ECBB006A2147 /* CCContainerViewControllerDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CCContainerViewControllerDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		56C3D38A1AD7ECBB006A2147 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		56C3D38B1AD7ECBB006A2147 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -172,6 +175,8 @@
 				56C3D3B21AD7ECD9006A2147 /* CCBarItem.m */,
 				56C3D3B31AD7ECD9006A2147 /* CCContainerViewController.h */,
 				56C3D3B41AD7ECD9006A2147 /* CCContainerViewController.m */,
+				566D15871AEF956D00C743F0 /* CCView.h */,
+				566D15881AEF956D00C743F0 /* CCView.m */,
 			);
 			name = CCContainerViewController;
 			sourceTree = "<group>";
@@ -338,6 +343,7 @@
 				56C3D3B81AD7ECD9006A2147 /* CCBarItem.m in Sources */,
 				56C3D3BA1AD7ECD9006A2147 /* CCContainerViewController.m in Sources */,
 				56C3D3921AD7ECBB006A2147 /* ViewController.m in Sources */,
+				566D15891AEF956D00C743F0 /* CCView.m in Sources */,
 				A42AC8E71AE64E500075C77A /* TestCollectionViewController.m in Sources */,
 				56C3D38F1AD7ECBB006A2147 /* AppDelegate.m in Sources */,
 				56C3D38C1AD7ECBB006A2147 /* main.m in Sources */,

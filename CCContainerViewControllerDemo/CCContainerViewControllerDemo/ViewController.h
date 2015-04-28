@@ -7,8 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "CCContainerViewController.h"
 
-@interface ViewController : UIViewController
+@interface ViewController : UIViewController <CCContainerViewControllerDelegate>
 
 
 @end

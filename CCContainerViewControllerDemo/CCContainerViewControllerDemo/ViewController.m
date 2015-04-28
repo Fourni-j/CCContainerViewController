@@ -12,6 +12,8 @@
 
 @interface ViewController ()
 
+@property UINavigationController *navCon;
+
 @end
 
 @implementation ViewController
@@ -44,8 +46,10 @@
     
     CCContainerViewController *container = [CCContainerViewController new];
     container.enabledStatusBarBackground = YES;
-    container.shouldAnimateTransitions = YES;
-    container.animatedTransitionWithScale = YES;
+//    container.shouldAnimateTransitions = YES;
+//    container.animatedTransitionWithScale = YES;
+
+    container.hideMenuInPortrait = YES;
     
     [container setViewControllers:controllers animated:YES];
     [container.view addSubview:[self closeButton]];
@@ -81,22 +85,25 @@
 }
 
 - (IBAction)navigationViewController:(id)sender {
-    UINavigationController *navCon = [UINavigationController new];
+    _navCon = [UINavigationController new];
  
     UIViewController *vc1 = [UIViewController new];
     [vc1.view setBackgroundColor:[UIColor colorWithRed:0.88 green:0.18 blue:0.08 alpha:1]];
     UIViewController *vc2 = [UIViewController new];
     [vc2.view setBackgroundColor:[UIColor colorWithRed:0.00 green:0.50 blue:0.88 alpha:1]];
 
-    [navCon pushViewController:vc1 animated:NO];
-    [navCon pushViewController:vc2 animated:NO];
+    [_navCon pushViewController:vc1 animated:NO];
+    [_navCon pushViewController:vc2 animated:NO];
     
     CCBarItem *barItem1 = [[CCBarItem alloc] initWithTitle:@"User" image:[UIImage imageNamed:@"user"]];
-    [navCon setBarItem:barItem1];
+    [_navCon setBarItem:barItem1];
 
-    NSArray *controllers = [[NSArray alloc] initWithObjects:navCon, nil];
+    NSArray *controllers = [[NSArray alloc] initWithObjects:_navCon, nil];
 
     CCContainerViewController *container = [CCContainerViewController new];
+    container.delegate = self;
+    container.hideMenuInPortrait = YES;
+    container.leftBarButtonImage = [UIImage imageNamed:@"camera"];
 
     [container setViewControllers:controllers animated:YES];
     [container.view addSubview:[self closeButton]];
@@ -139,6 +146,11 @@
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (UIViewController *)customContainerViewController:(CCContainerViewController *)container needControllerToShowBarButtonItemInViewController:(UIViewController *)controller {
+    NSLog(@"Return navCon");
+    return _navCon.viewControllers[0];
 }
 
 @end
