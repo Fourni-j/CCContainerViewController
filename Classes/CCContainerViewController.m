@@ -355,18 +355,8 @@
         make.width.mas_equalTo(self.sideBarScrollView);
     }];
     
-    UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
-    CGFloat w = MAX([UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
-    w = w - self.sideBarWidth;
-    [self.detailView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.mas_equalTo(self.view.mas_top);
-        make.bottom.mas_equalTo(self.view.mas_bottom);
-        if (orientation == UIDeviceOrientationPortrait || orientation == UIDeviceOrientationPortraitUpsideDown)
-            self.portraitViewWidth = make.width.mas_equalTo(self.view);
-        else if (orientation == UIDeviceOrientationLandscapeLeft || orientation == UIDeviceOrientationLandscapeRight)
-            self.landscapeViewWidth = make.width.mas_equalTo(@(w));
-        self.leftDetailView = make.left.mas_equalTo(self.view).with.insets(UIEdgeInsetsMake(0, self.sideBarWidth, 0, 0));
-    }];
+    [self createDetailView];
+    
     
     self.sideBarScrollView.contentInset = UIEdgeInsetsMake(_buttonsTopMargin, 0, 0, 0);
     
@@ -392,6 +382,31 @@
     [self updateInterfaceForOrientation:[[UIDevice currentDevice] orientation]];
 }
 
+
+- (void)createDetailView {
+    UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
+    CGFloat w = MAX([UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
+    w = w - self.sideBarWidth;
+    
+    
+    [self.detailView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.mas_equalTo(self.view.mas_top);
+        make.bottom.mas_equalTo(self.view.mas_bottom);
+        if (!_hideMenuInPortrait)
+        {
+            make.left.mas_equalTo(self.sideBarScrollView.mas_right);
+            make.right.mas_equalTo(self.view);
+        }
+        else
+        {
+            if (orientation == UIDeviceOrientationPortrait || orientation == UIDeviceOrientationPortraitUpsideDown)
+                self.portraitViewWidth = make.width.mas_equalTo(self.view);
+            else if (orientation == UIDeviceOrientationLandscapeLeft || orientation == UIDeviceOrientationLandscapeRight)
+                self.landscapeViewWidth = make.width.mas_equalTo(@(w));
+            self.leftDetailView = make.left.mas_equalTo(self.view).with.insets(UIEdgeInsetsMake(0, self.sideBarWidth, 0, 0));
+        }
+    }];
+}
 
 - (void)removeObserverFromBarItems
 {
@@ -561,6 +576,8 @@
 }
 
 - (void)updateInterfaceForOrientation:(UIDeviceOrientation)orientation {
+    if (!_hideMenuInPortrait)
+        return;
     if (orientation == UIDeviceOrientationLandscapeRight || orientation == UIDeviceOrientationLandscapeLeft) {
         if (_delegate && [_delegate respondsToSelector:@selector(customContainerViewController:needControllerToShowBarButtonItemInViewController:)]) {
             self.leftDetailView.insets(UIEdgeInsetsMake(0, self.sideBarWidth, 0, 0));

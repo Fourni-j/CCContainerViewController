@@ -102,7 +102,7 @@
 
     CCContainerViewController *container = [CCContainerViewController new];
     container.delegate = self;
-    container.hideMenuInPortrait = YES;
+    container.hideMenuInPortrait = NO;
     container.leftBarButtonImage = [UIImage imageNamed:@"camera"];
 
     [container setViewControllers:controllers animated:YES];
