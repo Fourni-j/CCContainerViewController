@@ -62,6 +62,7 @@
     self.badgeContainer.layer.cornerRadius = self.badgeContainer.bounds.size.height/2;
     self.titleLabel.preferredMaxLayoutWidth = self.bounds.size.width;
     [self centerImageAndButton:8 imageOnTop:YES];
+    if(floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_7_1) [super layoutSubviews];
 }
 
 //https://gist.github.com/phpmaple/9458264
@@ -70,8 +71,10 @@
     
     CGSize imageSize = self.imageView.frame.size;
     self.titleEdgeInsets = UIEdgeInsetsMake((imageSize.height+gap)*sign, -imageSize.width, 0, 0);
-    
-    CGSize titleSize = [self.titleLabel.text boundingRectWithSize:CGSizeMake(self.bounds.size.width, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName : self.titleLabel.font} context:nil].size;
+    CGSize titleSize = [self.titleLabel.text boundingRectWithSize:CGSizeMake(self.bounds.size.width, MAXFLOAT)
+                                                          options:NSStringDrawingUsesLineFragmentOrigin
+                                                       attributes:@{NSFontAttributeName : self.titleLabel.font} context:nil].size;
+
     self.imageEdgeInsets = UIEdgeInsetsMake(-(titleSize.height+gap)*sign, 0, 0, -titleSize.width);
     
 }
