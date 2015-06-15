@@ -41,8 +41,8 @@
         
         [self addSubview:self.badgeContainer];
         [self.badgeContainer mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.right.equalTo(self);
-            make.top.equalTo(self);
+            make.right.equalTo(self).with.insets(UIEdgeInsetsMake(0, 0, 0, self.badgePosition.width));
+            make.top.equalTo(self).with.insets(UIEdgeInsetsMake(self.badgePosition.height, 0, 0, 0));
             make.width.greaterThanOrEqualTo(self.badgeContainer.mas_height);
         }];
         
@@ -101,6 +101,17 @@
         }
         
     }
+}
+
+- (void)setBadgePosition:(CGSize)badgePosition {
+    _badgePosition = badgePosition;
+    
+    [self.badgeContainer mas_updateConstraints:^(MASConstraintMaker *make) {
+        make.right.equalTo(self).with.insets(UIEdgeInsetsMake(0, 0, 0, self.badgePosition.width));
+        make.top.equalTo(self).with.insets(UIEdgeInsetsMake(self.badgePosition.height, 0, 0, 0));
+        make.width.greaterThanOrEqualTo(self.badgeContainer.mas_height);
+    }];
+
 }
 
 @end

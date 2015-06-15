@@ -12,6 +12,8 @@
 
 @property (nonatomic) NSString *badgeValue;
 
+@property (nonatomic) CGSize badgePosition;
+
 - (instancetype)init;
 
 @end

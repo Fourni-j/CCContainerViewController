@@ -474,7 +474,8 @@
         [button setTitle:[[self.viewControllers[i] barItem] title] forState:UIControlStateNormal];
         [button setEnabled:[[self.viewControllers[i] barItem] enabled]];
         [button setBadgeValue:[[self.viewControllers[i] barItem] badgeValue]];
-        
+        [button setBadgePosition:[[self.viewControllers[i] barItem] badgePosition]];
+                
         if(animate)
         {
             button.alpha = 0.0;
@@ -494,6 +495,7 @@
         [[self.viewControllers[i] barItem] addObserver:self forKeyPath:@"image" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
         [[self.viewControllers[i] barItem] addObserver:self forKeyPath:@"enabled" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
         [[self.viewControllers[i] barItem] addObserver:self forKeyPath:@"badgeValue" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
+        
         
         [button addTarget:self action:@selector(buttonClicked:) forControlEvents:UIControlEventTouchUpInside];
         [button setTag:i];

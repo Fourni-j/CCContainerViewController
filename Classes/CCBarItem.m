@@ -16,6 +16,7 @@
         self.title = title;
         self.image = [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         self.badgeValue = @"";
+        self.badgePosition = CGSizeMake(0, 0);
         self.enabled = YES;
     }
     return self;

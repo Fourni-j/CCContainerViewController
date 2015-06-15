@@ -17,6 +17,8 @@
 
 @property (nonatomic, copy) NSString *badgeValue;
 
+@property (nonatomic) CGSize badgePosition;
+
 @property (nonatomic) BOOL enabled;
 
 - (instancetype)initWithTitle:(NSString *)title image:(UIImage *)image;
