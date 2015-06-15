@@ -71,7 +71,7 @@
 - (void)configureDefaults
 {
     _selectedIndex = 0;
-    _containerStyle = [CCContainerStyle new];
+    self.containerStyle = [CCContainerStyle new];
 }
 
 #pragma mark - Accessor
