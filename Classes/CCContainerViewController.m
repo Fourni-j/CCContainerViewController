@@ -272,6 +272,7 @@
 {
     if(SYSTEM_VERSION_LESS_THAN(@"8.0")) [self.view layoutSubviews];
     [super viewDidLayoutSubviews];
+    [self layoutCurrentViewController];
     [self updateDetailCorners];
 }
 
@@ -382,6 +383,15 @@
     [self updateInterfaceForOrientation:[[UIDevice currentDevice] orientation]];
 }
 
+- (void)layoutCurrentViewController
+{
+    if(!_currentDetailViewController || _currentDetailViewController.view.superview == nil)
+    {
+        return;
+    }
+    
+    _currentDetailViewController.view.frame = _currentDetailViewController.view.superview.bounds;
+}
 
 - (void)createDetailView {
     UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
@@ -713,42 +723,25 @@
         
         if(_transitionStyle == CCContainerTrasitionAnimationStyleSlide || _transitionStyle == CCContainerTrasitionAnimationStyleSlideAndScale)
         {
-            __block MASConstraint *constraint = nil;
-            __block MASConstraint *hConstraint = nil;
-            
-            [detailViewController.view mas_remakeConstraints:^(MASConstraintMaker *make) {
-                make.left.equalTo(self.detailView);
-                make.right.equalTo(self.detailView);
-                hConstraint = make.height.equalTo(self.detailView);
-            }];
+            CGRect frame = self.detailView.bounds;
+            frame.origin.y = frame.size.height;
             
             NSInteger currentIndex = [self.viewControllers indexOfObject:_currentDetailViewController];
             NSInteger nextIndex = [self.viewControllers indexOfObject:detailViewController];
             
             if (nextIndex > currentIndex) {
-                [detailViewController.view mas_updateConstraints:^(MASConstraintMaker *make) {
-                    constraint = make.top.equalTo(self.detailView.mas_bottom);
-                }];
+                frame.origin.y = frame.size.height;
             } else {
-                [detailViewController.view mas_updateConstraints:^(MASConstraintMaker *make) {
-                    constraint = make.bottom.equalTo(self.detailView.mas_top);
-                }];
+                frame.origin.y = -frame.size.height;
             }
             
-            detailViewController.view.frame = self.detailView.bounds;
+            detailViewController.view.frame = frame;
             
-            [self.detailView setNeedsUpdateConstraints];
-            [self.detailView updateConstraintsIfNeeded];
+            [detailViewController.view setNeedsUpdateConstraints];
+            [detailViewController.view updateConstraintsIfNeeded];
             
-            [self.detailView setNeedsLayout];
-            [self.detailView layoutIfNeeded];
-            
-            [constraint uninstall];
-            [hConstraint uninstall];
-            [detailViewController.view mas_updateConstraints:^(MASConstraintMaker *make) {
-                make.bottom.equalTo(self.detailView);
-                make.top.equalTo(self.detailView);
-            }];
+            [detailViewController.view setNeedsLayout];
+            [detailViewController.view layoutIfNeeded];
             
             if(_transitionStyle == CCContainerTrasitionAnimationStyleSlideAndScale)
             {
@@ -763,7 +756,7 @@
             }
             
             [UIView animateWithDuration:_transitionDuration delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:2.0 options:0 animations:^{
-                [self.view layoutIfNeeded];
+                detailViewController.view.frame = self.detailView.bounds;
             }completion:^(BOOL finished) {
                 [self removeCurrentDetailViewController];
                 self.currentDetailViewController = detailViewController;
@@ -774,11 +767,13 @@
         else
         {
             detailViewController.view.alpha = 0;
-            [detailViewController.view mas_remakeConstraints:^(MASConstraintMaker *make) {
-                make.edges.equalTo(self.detailView);
-            }];
+            detailViewController.view.frame = self.detailView.bounds;
             
-            [self.detailView layoutIfNeeded];
+            [detailViewController.view setNeedsUpdateConstraints];
+            [detailViewController.view updateConstraintsIfNeeded];
+            
+            [detailViewController.view setNeedsLayout];
+            [detailViewController.view layoutIfNeeded];
             
             [UIView animateWithDuration:_transitionDuration delay:0.0 options:UIViewAnimationOptionCurveEaseIn animations:^{
                 detailViewController.view.alpha = 1;
@@ -793,13 +788,14 @@
         [self removeCurrentDetailViewController];
         self.currentDetailViewController = detailViewController;
         [detailViewController didMoveToParentViewController:self];
-        [detailViewController.view mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.equalTo(self.detailView);
-            make.right.equalTo(self.detailView);
-            make.top.equalTo(self.detailView);
-            make.bottom.equalTo(self.detailView);
-        }];
-        [self.view layoutIfNeeded];
+        detailViewController.view.frame = self.detailView.bounds;
+        
+        [detailViewController.view setNeedsUpdateConstraints];
+        [detailViewController.view updateConstraintsIfNeeded];
+        
+        [detailViewController.view setNeedsLayout];
+        [detailViewController.view layoutIfNeeded];
+        
         [self activateButtons];
     }
 }

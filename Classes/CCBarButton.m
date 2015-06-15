@@ -62,7 +62,7 @@
     self.badgeContainer.layer.cornerRadius = self.badgeContainer.bounds.size.height/2;
     self.titleLabel.preferredMaxLayoutWidth = self.bounds.size.width;
     [self centerImageAndButton:8 imageOnTop:YES];
-    if(floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_7_1) [super layoutSubviews];
+    if(floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_7_1) [super layoutSubviews];
 }
 
 //https://gist.github.com/phpmaple/9458264
@@ -79,8 +79,8 @@
     
 }
 
-- (void)setBadgeValue:(NSString *)badgeValue {
-    
+- (void)setBadgeValue:(NSString *)badgeValue
+{    
     _badgeValue = badgeValue;
     
     if ((_badgeValue == nil || [_badgeValue isKindOfClass:[NSNull class]] || [_badgeValue isEqualToString:@""]) && _badgeContainer.alpha > 0) {
