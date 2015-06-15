@@ -30,6 +30,7 @@
 - (void)setSelectedIndex:(NSUInteger)selectedIndex animated:(BOOL)animate;
 
 - (CGRect)frameForTabBarItemAtIndex:(NSInteger)index;
+- (UIView *)viewForTabAtIndex:(NSUInteger)index;
 
 @property (nonatomic, strong) CCContainerStyle *containerStyle;
 

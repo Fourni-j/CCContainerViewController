@@ -92,6 +92,10 @@
     return frame;
 }
 
+- (UIView *)viewForTabAtIndex:(NSUInteger)index {
+    return self.buttons[index];
+}
+
 - (void)setViewControllers:(NSArray *)controllers animated:(BOOL)animated {
     [self removeCurrentDetailViewController];
     [self removeObserverFromBarItems];
