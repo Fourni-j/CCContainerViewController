@@ -45,12 +45,6 @@
 
 @synthesize selectedIndex = _selectedIndex;
 @synthesize viewControllers = _viewControllers;
-@synthesize sideBarBackground = _sideBarBackground;
-@synthesize buttonSelectedColor = _buttonSelectedColor;
-@synthesize buttonDefaultColor = _buttonDefaultColor;
-@synthesize buttonTextDefaultColor = _buttonTextDefaultColor;
-@synthesize buttonTextSelectedColor = _buttonTextSelectedColor;
-@synthesize buttonTextFont = _buttonTextFont;
 
 
 #pragma mark - Initialization
@@ -77,20 +71,7 @@
 - (void)configureDefaults
 {
     _selectedIndex = 0;
-    _sideBarBackground = [UIColor colorWithRed:0.16 green:0.16 blue:0.16 alpha:1];
-    _buttonDefaultColor = [UIColor colorWithRed:0.98 green:0.98 blue:0.98 alpha:1];
-    _buttonSelectedColor = [UIColor colorWithRed:0.88 green:0.18 blue:0.08 alpha:1];
-    _buttonTextDefaultColor = [UIColor colorWithRed:0.98 green:0.98 blue:0.98 alpha:1];
-    _buttonTextSelectedColor = [UIColor colorWithRed:0.88 green:0.18 blue:0.08 alpha:1];
-    _buttonTextFont = [UIFont systemFontOfSize:10];
-    _sideBarWidth = 64.0;
-    _buttonSpace = 22.0;
-    _detailCornerRadius = 0.0;
-    _transitionScale = 0.5;
-    _transitionDuration = 0.5;
-    _containerSelectionStyle = CCContainerSelectionStyleOverlay;
-    _transitionStyle = CCContainerTrasitionAnimationStyleSlide;
-    _buttonsTopMargin = 20.0;
+    _containerStyle = [CCContainerStyle new];
 }
 
 #pragma mark - Accessor
@@ -148,18 +129,18 @@
     [self presentDetailViewController:self.viewControllers[selectedIndex] animated:animate];
     
     
-    if (_containerSelectionStyle == CCContainerSelectionStyleTint) {
-        [[self.buttons objectAtIndex:self.selectedIndex] setTintColor:self.buttonDefaultColor];
-        [[self.buttons objectAtIndex:self.selectedIndex] setTitleColor:self.buttonTextDefaultColor forState:UIControlStateNormal];
+    if (_containerStyle.containerSelectionStyle == CCContainerSelectionStyleTint) {
+        [[self.buttons objectAtIndex:self.selectedIndex] setTintColor:self.containerStyle.buttonDefaultColor];
+        [[self.buttons objectAtIndex:self.selectedIndex] setTitleColor:self.containerStyle.buttonTextDefaultColor forState:UIControlStateNormal];
     }
     _selectedIndex = selectedIndex;
     
-    if (_containerSelectionStyle == CCContainerSelectionStyleTint) {
-        [[self.buttons objectAtIndex:self.selectedIndex] setTintColor:self.buttonSelectedColor];
-        [[self.buttons objectAtIndex:self.selectedIndex] setTitleColor:self.buttonTextSelectedColor forState:UIControlStateNormal];
+    if (_containerStyle.containerSelectionStyle == CCContainerSelectionStyleTint) {
+        [[self.buttons objectAtIndex:self.selectedIndex] setTintColor:self.containerStyle.buttonSelectedColor];
+        [[self.buttons objectAtIndex:self.selectedIndex] setTitleColor:self.containerStyle.buttonTextSelectedColor forState:UIControlStateNormal];
     }
     
-    if (_containerSelectionStyle == CCContainerSelectionStyleOverlay) {
+    if (_containerStyle.containerSelectionStyle == CCContainerSelectionStyleOverlay) {
         [self.selectedOverlay mas_remakeConstraints:^(MASConstraintMaker *make) {
             make.top.mas_equalTo(self.buttons[self.selectedIndex]);
             make.height.mas_equalTo(self.buttons[self.selectedIndex]);
@@ -194,50 +175,125 @@
     }
 }
 
-- (void)setSideBarBackground:(UIColor *)sideBarBackground {
-    _sideBarBackground = sideBarBackground;
-    [self.sideBarScrollView setBackgroundColor:sideBarBackground];
-    [self.view setBackgroundColor:sideBarBackground];
-    if(_statusBarBackground) _statusBarBackground.backgroundColor = _sideBarBackground;
-}
-
-- (void)setButtonDefaultColor:(UIColor *)buttonDefaultColor {
-    _buttonDefaultColor = buttonDefaultColor;
-    for (int i = 0; i < [self.buttons count]; i++) {
-        [[self.buttons objectAtIndex:i] setBackgroundColor:_buttonDefaultColor];
-    }
-}
-
-- (void)setButtonSelectedColor:(UIColor *)buttonSelectedColor {
-    _buttonSelectedColor = buttonSelectedColor;
-    if(self.selectedOverlay)
+- (void)setContainerStyle:(CCContainerStyle *)containerStyle
+{
+    if(containerStyle == nil) return;
+    
+    if(_containerStyle != nil)
     {
-        UIView *line = [self.selectedOverlay viewWithTag:777];
-        if(line)
+        [self removeObserversOnStyle];
+    }
+    
+    _containerStyle = nil;
+    _containerStyle = containerStyle;
+    
+    [self addObserversOnStyle];
+}
+
+#pragma mark - Observer
+
+- (void)addObserversOnStyle
+{
+    [_containerStyle addObserver:self forKeyPath:@"sideBarBackground" options:NSKeyValueObservingOptionNew context:nil];
+    [_containerStyle addObserver:self forKeyPath:@"buttonDefaultColor" options:NSKeyValueObservingOptionNew context:nil];
+    [_containerStyle addObserver:self forKeyPath:@"buttonSelectedColor" options:NSKeyValueObservingOptionNew context:nil];
+    [_containerStyle addObserver:self forKeyPath:@"buttonTextDefaultColor" options:NSKeyValueObservingOptionNew context:nil];
+    [_containerStyle addObserver:self forKeyPath:@"buttonTextSelectedColor" options:NSKeyValueObservingOptionNew context:nil];
+    [_containerStyle addObserver:self forKeyPath:@"buttonTextFont" options:NSKeyValueObservingOptionNew context:nil];
+}
+
+- (void)removeObserversOnStyle
+{
+    [_containerStyle removeObserver:self forKeyPath:@"sideBarBackground" context:nil];
+    [_containerStyle removeObserver:self forKeyPath:@"buttonDefaultColor" context:nil];
+    [_containerStyle removeObserver:self forKeyPath:@"buttonSelectedColor" context:nil];
+    [_containerStyle removeObserver:self forKeyPath:@"buttonTextDefaultColor" context:nil];
+    [_containerStyle removeObserver:self forKeyPath:@"buttonTextSelectedColor" context:nil];
+    [_containerStyle removeObserver:self forKeyPath:@"buttonTextFont" context:nil];
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+    if(object == _containerStyle)
+    {
+        id value = change[NSKeyValueChangeNewKey];
+        
+        if([keyPath isEqualToString:@"sideBarBackground"])
         {
-            line.backgroundColor = buttonSelectedColor;
+            [self.sideBarScrollView setBackgroundColor:value];
+            [self.view setBackgroundColor:value];
+            if(_statusBarBackground) _statusBarBackground.backgroundColor = value;
+        }
+        else if([keyPath isEqualToString:@"buttonDefaultColor"])
+        {
+            for (int i = 0; i < [self.buttons count]; i++) {
+                [[self.buttons objectAtIndex:i] setBackgroundColor:value];
+            }
+        }
+        else if([keyPath isEqualToString:@"buttonSelectedColor"])
+        {
+            if(self.selectedOverlay)
+            {
+                UIView *line = [self.selectedOverlay viewWithTag:777];
+                if(line)
+                {
+                    line.backgroundColor = value;
+                }
+            }
+            else if(self.selectedIndex < self.buttons.count) [[self.buttons objectAtIndex:self.selectedIndex] setTintColor:value];
+        }
+        else if([keyPath isEqualToString:@"buttonTextDefaultColor"])
+        {
+            for (int i = 0; i < [self.buttons count]; i++) {
+                [[self.buttons objectAtIndex:i] setTitleColor:value forState:UIControlStateNormal];
+            }
+        }
+        else if([keyPath isEqualToString:@"buttonTextSelectedColor"])
+        {
+            if(self.selectedIndex < self.buttons.count) [[self.buttons objectAtIndex:self.selectedIndex] setTitleColor:value forState:UIControlStateNormal];
+        }
+        else if([keyPath isEqualToString:@"buttonTextFont"])
+        {
+            for (int i = 0; i < [self.buttons count]; i++) {
+                [[[self.buttons objectAtIndex:i] titleLabel] setFont:value];
+            }
+        }
+        
+        return;
+    }
+    
+    if (![object isKindOfClass:[CCBarItem class]]) {
+        return;
+    }
+    
+    NSInteger index = -1;
+    for (int i = 0; i < [self.viewControllers count]; i++) {
+        if ([self.viewControllers[i] barItem] == object) {
+            index = i;
+            break;
         }
     }
-    else if(self.selectedIndex < self.buttons.count) [[self.buttons objectAtIndex:self.selectedIndex] setTintColor:_buttonSelectedColor];
-}
-
-- (void)setButtonTextDefaultColor:(UIColor *)buttonTextDefaultColor {
-    _buttonTextDefaultColor = buttonTextDefaultColor;
-    for (int i = 0; i < [self.buttons count]; i++) {
-        [[self.buttons objectAtIndex:i] setTitleColor:_buttonTextDefaultColor forState:UIControlStateNormal];
+    
+    if (index == -1)
+        return;
+    
+    if ([keyPath isEqualToString:@"enabled"]) {
+        [[self.buttons objectAtIndex:index] setEnabled:[[change objectForKey:NSKeyValueChangeNewKey] boolValue]];
+        
+        if ([[self.buttons objectAtIndex:index] isEnabled]) {
+            [[self.buttons objectAtIndex:index] setAlpha:1.0];
+        } else {
+            [[self.buttons objectAtIndex:index] setAlpha:0.5];
+        }
+        
+    } else if ([keyPath isEqualToString:@"title"]) {
+        [[self.buttons objectAtIndex:index] setTitle:[change objectForKey:NSKeyValueChangeNewKey]];
+    } else if ([keyPath isEqualToString:@"image"]) {
+        [[self.buttons objectAtIndex:index] setImage:[change objectForKey:NSKeyValueChangeNewKey] forState:UIControlStateNormal];
+    } else if ([keyPath isEqualToString:@"badgeValue"]) {
+        [[self.buttons objectAtIndex:index] setBadgeValue:[change objectForKey:NSKeyValueChangeNewKey]];
     }
-}
-
-- (void)setButtonTextSelectedColor:(UIColor *)buttonTextSelectedColor {
-    _buttonTextSelectedColor = buttonTextSelectedColor;
-    if(self.selectedIndex < self.buttons.count) [[self.buttons objectAtIndex:self.selectedIndex] setTitleColor:_buttonTextSelectedColor forState:UIControlStateNormal];
-}
-
-- (void)setButtonTextFont:(UIFont *)buttonTextFont {
-    _buttonTextFont = buttonTextFont;
-    for (int i = 0; i < [self.buttons count]; i++) {
-        [[[self.buttons objectAtIndex:i] titleLabel] setFont:_buttonTextFont];
-    }
+    
 }
 
 - (UIBezierPath *)detailBezierPath
@@ -257,7 +313,7 @@
     
     return [UIBezierPath bezierPathWithRoundedRect:frame
                                  byRoundingCorners:(UIRectCornerTopLeft|UIRectCornerBottomLeft)
-                                       cornerRadii:CGSizeMake(_detailCornerRadius, _detailCornerRadius)];
+                                       cornerRadii:CGSizeMake(_containerStyle.detailCornerRadius, _containerStyle.detailCornerRadius)];
 }
 
 - (void)updateDetailCorners
@@ -296,7 +352,7 @@
     self.selectedOverlay.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:0.15];
     
     UIView *tmpRedView = [[UIView alloc] init];
-    tmpRedView.backgroundColor = _buttonSelectedColor;
+    tmpRedView.backgroundColor = _containerStyle.buttonSelectedColor;
     tmpRedView.tag = 777;
     [self.selectedOverlay addSubview:tmpRedView];
     
@@ -319,17 +375,17 @@
     _detailViewMaskLayer = [[CAShapeLayer alloc] init];
     _detailView.layer.mask = _detailViewMaskLayer;
     
-    [self.sideBarScrollView setBackgroundColor:self.sideBarBackground];
-    [self.view setBackgroundColor:self.sideBarBackground];
+    [self.sideBarScrollView setBackgroundColor:self.containerStyle.sideBarBackground];
+    [self.view setBackgroundColor:self.containerStyle.sideBarBackground];
     [self.view addSubview:self.sideBarScrollView];
     [self.view addSubview:self.detailView];
     [self.sideBarScrollView setScrollsToTop:NO];
     [self.sideBarScrollView addSubview:self.sideBarView];
     
-    if(_enabledStatusBarBackground)
+    if(_containerStyle.enabledStatusBarBackground)
     {
         UIView *statusBarBackground = [UIView new];
-        statusBarBackground.backgroundColor = _sideBarBackground;
+        statusBarBackground.backgroundColor = _containerStyle.sideBarBackground;
         [self.view addSubview:statusBarBackground];
         _statusBarBackground = statusBarBackground;
         
@@ -345,7 +401,7 @@
         make.top.mas_equalTo(self.view.mas_top);
         make.bottom.mas_equalTo(self.view.mas_bottom);
         make.left.mas_equalTo(self.view.mas_left);
-        make.width.mas_equalTo(self.sideBarWidth);
+        make.width.mas_equalTo(self.containerStyle.sideBarWidth);
     }];
     
     [self.sideBarView mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -359,20 +415,20 @@
     [self createDetailView];
     
     
-    self.sideBarScrollView.contentInset = UIEdgeInsetsMake(_buttonsTopMargin, 0, 0, 0);
+    self.sideBarScrollView.contentInset = UIEdgeInsetsMake(_containerStyle.buttonsTopMargin, 0, 0, 0);
     
-    if (_containerSelectionStyle == CCContainerSelectionStyleOverlay)
+    if (_containerStyle.containerSelectionStyle == CCContainerSelectionStyleOverlay)
         [self.sideBarScrollView addSubview:self.selectedOverlay];
     
     [self buildButtonsAnimated:NO];
     _builded = YES;
     
-    if (_containerSelectionStyle == CCContainerSelectionStyleOverlay) {
+    if (_containerStyle.containerSelectionStyle == CCContainerSelectionStyleOverlay) {
         [self.selectedOverlay mas_makeConstraints:^(MASConstraintMaker *make) {
             make.top.mas_equalTo(self.buttons[self.selectedIndex]);
             make.height.mas_equalTo(self.buttons[self.selectedIndex]);
             make.left.mas_equalTo(self.sideBarScrollView);
-            _selectedOverlayRight = make.right.mas_equalTo(self.sideBarScrollView).insets(UIEdgeInsetsMake(0, 0, 0, -_detailCornerRadius));
+            _selectedOverlayRight = make.right.mas_equalTo(self.sideBarScrollView).insets(UIEdgeInsetsMake(0, 0, 0, -_containerStyle.detailCornerRadius));
         }];
     }
     
@@ -396,13 +452,13 @@
 - (void)createDetailView {
     UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
     CGFloat w = MAX([UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
-    w = w - self.sideBarWidth;
+    w = w - self.containerStyle.sideBarWidth;
     
     
     [self.detailView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.mas_equalTo(self.view.mas_top);
         make.bottom.mas_equalTo(self.view.mas_bottom);
-        if (!_hideMenuInPortrait)
+        if (!_containerStyle.hideMenuInPortrait)
         {
             make.left.mas_equalTo(self.sideBarScrollView.mas_right);
             make.right.mas_equalTo(self.view);
@@ -413,7 +469,7 @@
                 self.portraitViewWidth = make.width.mas_equalTo(self.view);
             else if (orientation == UIDeviceOrientationLandscapeLeft || orientation == UIDeviceOrientationLandscapeRight)
                 self.landscapeViewWidth = make.width.mas_equalTo(@(w));
-            self.leftDetailView = make.left.mas_equalTo(self.view).with.insets(UIEdgeInsetsMake(0, self.sideBarWidth, 0, 0));
+            self.leftDetailView = make.left.mas_equalTo(self.view).with.insets(UIEdgeInsetsMake(0, self.containerStyle.sideBarWidth, 0, 0));
         }
     }];
 }
@@ -468,8 +524,8 @@
     
     for (int i = 0; i < self.viewControllers.count; i++) {
         CCBarButton *button = [[CCBarButton alloc] init];
-        [[button titleLabel] setFont:self.buttonTextFont];
-        [button setTintColor:self.buttonDefaultColor];
+        [[button titleLabel] setFont:self.containerStyle.buttonTextFont];
+        [button setTintColor:self.containerStyle.buttonDefaultColor];
         [button setImage:[[self.viewControllers[i] barItem] image] forState:UIControlStateNormal];
         [button setTitle:[[self.viewControllers[i] barItem] title] forState:UIControlStateNormal];
         [button setEnabled:[[self.viewControllers[i] barItem] enabled]];
@@ -504,7 +560,7 @@
         
         [button mas_makeConstraints:^(MASConstraintMaker *make) {
             if (lastButton) {
-                make.top.mas_equalTo(lastButton.mas_bottom).insets(UIEdgeInsetsMake(_buttonSpace, 0, 0, 0));
+                make.top.mas_equalTo(lastButton.mas_bottom).insets(UIEdgeInsetsMake(_containerStyle.buttonSpace, 0, 0, 0));
             } else {
                 make.top.mas_equalTo(self.sideBarScrollView);
             }
@@ -543,56 +599,21 @@
     }
 }
 
-
--(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    if (![object isKindOfClass:[CCBarItem class]]) {
-        return;
-    }
-    
-    NSInteger index = -1;
-    for (int i = 0; i < [self.viewControllers count]; i++) {
-        if ([self.viewControllers[i] barItem] == object) {
-            index = i;
-            break;
-        }
-    }
-    
-    if (index == -1)
-        return;
-    
-    if ([keyPath isEqualToString:@"enabled"]) {
-        [[self.buttons objectAtIndex:index] setEnabled:[[change objectForKey:NSKeyValueChangeNewKey] boolValue]];
-        
-        if ([[self.buttons objectAtIndex:index] isEnabled]) {
-            [[self.buttons objectAtIndex:index] setAlpha:1.0];
-        } else {
-            [[self.buttons objectAtIndex:index] setAlpha:0.5];
-        }
-        
-    } else if ([keyPath isEqualToString:@"title"]) {
-        [[self.buttons objectAtIndex:index] setTitle:[change objectForKey:NSKeyValueChangeNewKey]];
-    } else if ([keyPath isEqualToString:@"image"]) {
-        [[self.buttons objectAtIndex:index] setImage:[change objectForKey:NSKeyValueChangeNewKey] forState:UIControlStateNormal];
-    } else if ([keyPath isEqualToString:@"badgeValue"]) {
-        [[self.buttons objectAtIndex:index] setBadgeValue:[change objectForKey:NSKeyValueChangeNewKey]];
-    }
-}
-
 - (void)deviceOrientationDidChange:(NSNotification *)notification {
     UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
 
-    if (orientation == UIDeviceOrientationFaceDown || orientation == UIDeviceOrientationFaceUp || !_hideMenuInPortrait)
+    if (orientation == UIDeviceOrientationFaceDown || orientation == UIDeviceOrientationFaceUp || !_containerStyle.hideMenuInPortrait)
         return;
     
     [self updateInterfaceForOrientation:orientation];
 }
 
 - (void)updateInterfaceForOrientation:(UIDeviceOrientation)orientation {
-    if (!_hideMenuInPortrait)
+    if (!_containerStyle.hideMenuInPortrait)
         return;
     if (orientation == UIDeviceOrientationLandscapeRight || orientation == UIDeviceOrientationLandscapeLeft) {
         if (_delegate && [_delegate respondsToSelector:@selector(customContainerViewController:needControllerToShowBarButtonItemInViewController:)]) {
-            self.leftDetailView.insets(UIEdgeInsetsMake(0, self.sideBarWidth, 0, 0));
+            self.leftDetailView.insets(UIEdgeInsetsMake(0, self.containerStyle.sideBarWidth, 0, 0));
             for (UIViewController *tmp in self.viewControllers) {
                
                 UIViewController *ctrl = [_delegate customContainerViewController:self needControllerToShowBarButtonItemInViewController:tmp];
@@ -606,7 +627,7 @@
         if (!self.landscapeViewWidth)
         {
             CGFloat w = MAX([UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
-            w = w - self.sideBarWidth;
+            w = w - self.containerStyle.sideBarWidth;
             [self.detailView mas_updateConstraints:^(MASConstraintMaker *make) {
                 self.landscapeViewWidth = make.width.mas_equalTo(@(w));
             }];
@@ -626,7 +647,7 @@
             for (UIViewController*tmp in self.viewControllers) {
                 UIViewController *ctrl = [_delegate customContainerViewController:self needControllerToShowBarButtonItemInViewController:tmp];
                 if (ctrl) {
-                    UIBarButtonItem *leftButton = [[UIBarButtonItem alloc] initWithImage:self.leftBarButtonImage style:UIBarButtonItemStylePlain target:self action:@selector(showMenu)];
+                    UIBarButtonItem *leftButton = [[UIBarButtonItem alloc] initWithImage:self.containerStyle.leftBarButtonImage style:UIBarButtonItemStylePlain target:self action:@selector(showMenu)];
                     ctrl.navigationItem.leftBarButtonItem = leftButton;
                 }
             }
@@ -664,7 +685,7 @@
     }];
 
     
-    self.leftDetailView.insets(UIEdgeInsetsMake(0, self.sideBarWidth, 0, 0));
+    self.leftDetailView.insets(UIEdgeInsetsMake(0, self.containerStyle.sideBarWidth, 0, 0));
     [UIView animateWithDuration:0.2 animations:^{
         [self.view layoutIfNeeded];
     }];
@@ -693,7 +714,7 @@
     
     if(self.selectedIndex == [sender tag])
     {
-        if(_enablePopToNavigationRoot)
+        if(_containerStyle.enablePopToNavigationRoot)
         {
             if([self.selectedViewController isKindOfClass:[UINavigationController class]])
             {
@@ -703,7 +724,7 @@
         return;
     }
     
-    [self setSelectedIndex:[sender tag] animated:(_transitionStyle != CCContainerTrasitionAnimationStyleNone)];
+    [self setSelectedIndex:[sender tag] animated:(_containerStyle.transitionStyle != CCContainerTrasitionAnimationStyleNone)];
 }
 
 - (void)presentDetailViewController:(UIViewController *)detailViewController
@@ -723,7 +744,7 @@
     
     if (animate) {
         
-        if(_transitionStyle == CCContainerTrasitionAnimationStyleSlide || _transitionStyle == CCContainerTrasitionAnimationStyleSlideAndScale)
+        if(_containerStyle.transitionStyle == CCContainerTrasitionAnimationStyleSlide || _containerStyle.transitionStyle == CCContainerTrasitionAnimationStyleSlideAndScale)
         {
             CGRect frame = self.detailView.bounds;
             frame.origin.y = frame.size.height;
@@ -745,11 +766,11 @@
             [detailViewController.view setNeedsLayout];
             [detailViewController.view layoutIfNeeded];
             
-            if(_transitionStyle == CCContainerTrasitionAnimationStyleSlideAndScale)
+            if(_containerStyle.transitionStyle == CCContainerTrasitionAnimationStyleSlideAndScale)
             {
                 UIView *scalingView = _currentDetailViewController.view;
-                [UIView animateWithDuration:_transitionDuration delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^{
-                    scalingView.transform = CGAffineTransformMakeScale(_transitionScale, _transitionScale);
+                [UIView animateWithDuration:_containerStyle.transitionDuration delay:0.0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+                    scalingView.transform = CGAffineTransformMakeScale(_containerStyle.transitionScale, _containerStyle.transitionScale);
                     scalingView.alpha = 0.0;
                 } completion:^(BOOL finished) {
                     scalingView.transform = CGAffineTransformMakeScale(1.0, 1.0);
@@ -757,7 +778,7 @@
                 }];
             }
             
-            [UIView animateWithDuration:_transitionDuration delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:2.0 options:0 animations:^{
+            [UIView animateWithDuration:_containerStyle.transitionDuration delay:0.0 usingSpringWithDamping:0.7 initialSpringVelocity:2.0 options:0 animations:^{
                 detailViewController.view.frame = self.detailView.bounds;
             }completion:^(BOOL finished) {
                 [self removeCurrentDetailViewController];
@@ -777,7 +798,7 @@
             [detailViewController.view setNeedsLayout];
             [detailViewController.view layoutIfNeeded];
             
-            [UIView animateWithDuration:_transitionDuration delay:0.0 options:UIViewAnimationOptionCurveEaseIn animations:^{
+            [UIView animateWithDuration:_containerStyle.transitionDuration delay:0.0 options:UIViewAnimationOptionCurveEaseIn animations:^{
                 detailViewController.view.alpha = 1;
             } completion:^(BOOL finished) {
                 [self removeCurrentDetailViewController];

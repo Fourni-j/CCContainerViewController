@@ -45,11 +45,12 @@
     NSArray *controllers = [[NSArray alloc] initWithObjects:vc1, vc2, vc3, nil];
     
     CCContainerViewController *container = [CCContainerViewController new];
-    container.enabledStatusBarBackground = YES;
+    
+    
+    container.containerStyle.enabledStatusBarBackground = YES;
 //    container.shouldAnimateTransitions = YES;
 //    container.animatedTransitionWithScale = YES;
-
-    container.hideMenuInPortrait = YES;
+    container.containerStyle.hideMenuInPortrait = YES;
     
     [container setViewControllers:controllers animated:YES];
     [container.view addSubview:[self closeButton]];
@@ -102,8 +103,8 @@
 
     CCContainerViewController *container = [CCContainerViewController new];
     container.delegate = self;
-    container.hideMenuInPortrait = NO;
-    container.leftBarButtonImage = [UIImage imageNamed:@"camera"];
+    container.containerStyle.hideMenuInPortrait = NO;
+    container.containerStyle.leftBarButtonImage = [UIImage imageNamed:@"camera"];
 
     [container setViewControllers:controllers animated:YES];
     [container.view addSubview:[self closeButton]];
@@ -123,7 +124,7 @@
     [nav setBarItem:barItem1];
     
     CCContainerViewController *container = [CCContainerViewController new];
-    container.enabledStatusBarBackground = YES;
+    container.containerStyle.enabledStatusBarBackground = YES;
     
     [container setViewControllers:@[nav] animated:YES];
     [container.view addSubview:[self closeButton]];
