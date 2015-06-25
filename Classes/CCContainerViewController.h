@@ -24,6 +24,11 @@
 @property (nonatomic, assign) UIViewController *selectedViewController;
 @property (nonatomic) NSUInteger selectedIndex;
 
+/**
+ *  If Yes the same selected Index will repopulate the detail view controller
+ */
+@property (nonatomic) BOOL forceSelection;
+
 
 - (void)setViewControllers:(NSArray *)controllers animated:(BOOL)animated;
 - (void)setSelectedViewController:(UIViewController *)selectedViewController animated:(BOOL)animate;

@@ -103,7 +103,9 @@
     if(_builded)
     {
         [self buildButtonsAnimated:animated];
+        _forceSelection = YES;
         [self setSelectedIndex:0 animated:animated];
+        _forceSelection = NO;
     }
 }
 
@@ -124,6 +126,11 @@
 - (void)setSelectedIndex:(NSUInteger)selectedIndex animated:(BOOL)animate {
     //self.expectedIndex = selectedIndex;
     
+    if(!_forceSelection && (_selectedIndex == selectedIndex))
+    {
+        return;
+    }
+    
     if(!_builded || self.viewControllers.count == 0)
     {
         _selectedIndex = selectedIndex;
@@ -137,6 +144,7 @@
         [[self.buttons objectAtIndex:self.selectedIndex] setTintColor:self.containerStyle.buttonDefaultColor];
         [[self.buttons objectAtIndex:self.selectedIndex] setTitleColor:self.containerStyle.buttonTextDefaultColor forState:UIControlStateNormal];
     }
+    
     _selectedIndex = selectedIndex;
     
     if (_containerStyle.containerSelectionStyle == CCContainerSelectionStyleTint) {
@@ -437,7 +445,9 @@
     }
     
     if (self.viewControllers) {
+        _forceSelection = YES;
         self.selectedIndex = _selectedIndex;
+        _forceSelection = YES;
     }
     
     [self updateInterfaceForOrientation:[[UIDevice currentDevice] orientation]];
@@ -852,7 +862,15 @@
 }
 
 - (void)dealloc {
-    for (int i = 0; i < [self.viewControllers count]; i++) {
+    
+    if(_containerStyle != nil)
+    {
+        [self removeObserversOnStyle];
+        _containerStyle = nil;
+    }
+    
+    for (int i = 0; i < [self.viewControllers count]; i++)
+    {
         [[self.viewControllers[i] barItem] removeObserver:self forKeyPath:@"title"];
         [[self.viewControllers[i] barItem] removeObserver:self forKeyPath:@"enabled"];
         [[self.viewControllers[i] barItem] removeObserver:self forKeyPath:@"image"];
