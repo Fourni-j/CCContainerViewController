@@ -739,6 +739,11 @@
     }
     
     [self setSelectedIndex:[sender tag] animated:(_containerStyle.transitionStyle != CCContainerTrasitionAnimationStyleNone)];
+    
+    if(_delegate && [_delegate respondsToSelector:@selector(customContainerViewController:didSelectViewController:)])
+    {
+        [_delegate customContainerViewController:self didSelectViewController:self.selectedViewController];
+    }
 }
 
 - (void)presentDetailViewController:(UIViewController *)detailViewController

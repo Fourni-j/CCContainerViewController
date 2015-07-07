@@ -44,6 +44,7 @@
 @protocol CCContainerViewControllerDelegate <NSObject>
 @optional
 - (BOOL)customContainerViewController:(CCContainerViewController*)container shouldSelectViewController:(UIViewController *)viewController;
+- (void)customContainerViewController:(CCContainerViewController*)container didSelectViewController:(UIViewController *)viewController;
 - (UIViewController *)customContainerViewController:(CCContainerViewController *)container needControllerToShowBarButtonItemInViewController:(UIViewController *)controller;
 
 @end
