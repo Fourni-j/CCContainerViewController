@@ -160,9 +160,16 @@
             make.right.mas_equalTo(self.sideBarScrollView);
         }];
         
-        [UIView animateWithDuration:0.15 animations:^{
+        if(animate)
+        {
+            [UIView animateWithDuration:0.15 animations:^{
+                [self.view layoutIfNeeded];
+            }];
+        }
+        else
+        {
             [self.view layoutIfNeeded];
-        }];
+        }
     }
 }
 
