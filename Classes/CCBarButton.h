@@ -10,10 +10,22 @@
 
 @interface CCBarButton : UIButton
 
+/**
+ *  The notification badge value
+ */
 @property (nonatomic) NSString *badgeValue;
 
+/**
+ *  The notification badge position
+ */
 @property (nonatomic) CGSize badgePosition;
 
+
+/**
+ *  Initialize the CCBarButton object
+ *
+ *  @return The initialized CCBarButton object
+ */
 - (instancetype)init;
 
 @end

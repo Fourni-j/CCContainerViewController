@@ -12,6 +12,9 @@
 
 @interface CCView : UIView
 
+/**
+ *  THe CCView delegate object
+ */
 @property (nonatomic, assign) id<CCViewDelegate>delegate;
 
 @end
@@ -19,6 +22,7 @@
 @protocol CCViewDelegate <NSObject>
 
 @optional
+
 -(void)touchesInView;
 
 @end
