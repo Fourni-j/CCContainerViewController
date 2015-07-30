@@ -9,6 +9,10 @@ Use [CocoaPods](http://cocoapods.org)
 pod 'CCContainerViewController', :git => 'https://github.com/Fourni-j/CCContainerViewController.git'
 ```
 
+## Screenshots
+
+![Example](./Screens/example.gif "Example View")
+
 ## Contact
 
 @CharladFournier https://twitter.com/CharladFournier
