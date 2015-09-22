@@ -19,9 +19,9 @@
 
 - (instancetype)initWithControllers:(NSArray *)controllers;
 
-@property (nonatomic, assign) id<CCContainerViewControllerDelegate>delegate;
+@property (nonatomic, weak) id<CCContainerViewControllerDelegate>delegate;
 @property (nonatomic, copy) NSArray *viewControllers;
-@property (nonatomic, assign) UIViewController *selectedViewController;
+@property (nonatomic, weak) UIViewController *selectedViewController;
 @property (nonatomic) NSUInteger selectedIndex;
 
 /**
@@ -51,7 +51,7 @@
 
 @interface UIViewController (CCContainer)
 
-@property (nonatomic, retain) CCBarItem *barItem;
+@property (nonatomic, strong) CCBarItem *barItem;
 @property (nonatomic, readonly) CCContainerViewController *containerViewController;
 
 @end

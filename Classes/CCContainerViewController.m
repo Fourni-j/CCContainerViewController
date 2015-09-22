@@ -223,12 +223,19 @@
 
 - (void)removeObserversOnStyle
 {
-    [_containerStyle removeObserver:self forKeyPath:@"sideBarBackground" context:nil];
-    [_containerStyle removeObserver:self forKeyPath:@"buttonDefaultColor" context:nil];
-    [_containerStyle removeObserver:self forKeyPath:@"buttonSelectedColor" context:nil];
-    [_containerStyle removeObserver:self forKeyPath:@"buttonTextDefaultColor" context:nil];
-    [_containerStyle removeObserver:self forKeyPath:@"buttonTextSelectedColor" context:nil];
-    [_containerStyle removeObserver:self forKeyPath:@"buttonTextFont" context:nil];
+    @try
+    {
+        [_containerStyle removeObserver:self forKeyPath:@"sideBarBackground" context:nil];
+        [_containerStyle removeObserver:self forKeyPath:@"buttonDefaultColor" context:nil];
+        [_containerStyle removeObserver:self forKeyPath:@"buttonSelectedColor" context:nil];
+        [_containerStyle removeObserver:self forKeyPath:@"buttonTextDefaultColor" context:nil];
+        [_containerStyle removeObserver:self forKeyPath:@"buttonTextSelectedColor" context:nil];
+        [_containerStyle removeObserver:self forKeyPath:@"buttonTextFont" context:nil];
+    }
+    @catch(NSException *exception)
+    {
+        //I put this try catch here because with low memory it may happen that an observer does not exist anymore
+    }
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
@@ -501,10 +508,17 @@
     
     for (UIViewController *ctrl in _viewControllers)
     {
-        [ctrl.barItem removeObserver:self forKeyPath:@"title" context:nil];
-        [ctrl.barItem removeObserver:self forKeyPath:@"image" context:nil];
-        [ctrl.barItem removeObserver:self forKeyPath:@"enabled" context:nil];
-        [ctrl.barItem removeObserver:self forKeyPath:@"badgeValue" context:nil];
+        @try
+        {
+            [ctrl.barItem removeObserver:self forKeyPath:@"title" context:nil];
+            [ctrl.barItem removeObserver:self forKeyPath:@"image" context:nil];
+            [ctrl.barItem removeObserver:self forKeyPath:@"enabled" context:nil];
+            [ctrl.barItem removeObserver:self forKeyPath:@"badgeValue" context:nil];
+        }
+        @catch (NSException *exception)
+        {
+            //Same as the other @try
+        }
     }
 }
 
@@ -894,7 +908,7 @@
     return [[self selectedViewController] shouldAutorotate];
 }
 
-- (NSUInteger)supportedInterfaceOrientations {
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
     return [[self selectedViewController] supportedInterfaceOrientations];
 }
 
