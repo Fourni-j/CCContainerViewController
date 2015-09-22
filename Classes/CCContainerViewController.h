@@ -17,11 +17,24 @@
 
 @interface CCContainerViewController : UIViewController <CCViewDelegate>
 
-- (instancetype)initWithControllers:(NSArray *)controllers;
-
+/**
+ *  THe CCContainerViewController delegate object
+ */
 @property (nonatomic, weak) id<CCContainerViewControllerDelegate>delegate;
+
+/**
+ *  The view controllers to display in container
+ */
 @property (nonatomic, copy) NSArray *viewControllers;
+
+/**
+ *  The selected view controller
+ */
 @property (nonatomic, weak) UIViewController *selectedViewController;
+
+/**
+ *  The index of the selected view controller
+ */
 @property (nonatomic) NSUInteger selectedIndex;
 
 /**
@@ -30,13 +43,60 @@
 @property (nonatomic) BOOL forceSelection;
 
 
+/**
+ *  Initialize the CCContainerViewController object with view controllers
+ *
+ *  @param controllers The view controllers
+ *
+ *  @return Initialized CCContainerViewController object
+ */
+- (instancetype)initWithControllers:(NSArray *)controllers;
+
+/**
+ *  Set the view controllers with animation
+ *
+ *  @param controllers View controllers to display
+ *  @param animated    Animation
+ */
 - (void)setViewControllers:(NSArray *)controllers animated:(BOOL)animated;
+
+/**
+ *  Set the selected view controller with animation
+ *
+ *  @param selectedViewController View controller to select
+ *  @param animate                Animation
+ */
 - (void)setSelectedViewController:(UIViewController *)selectedViewController animated:(BOOL)animate;
+
+/**
+ *  Set the index of the selected view controller with animation
+ *
+ *  @param selectedIndex Index of the view controller to display
+ *  @param animate       Animation
+*/
 - (void)setSelectedIndex:(NSUInteger)selectedIndex animated:(BOOL)animate;
 
+/**
+ *  Get the frame of the tab bar item at the index
+ *
+ *  @param index Index of tab bar item
+ *
+ *  @return The frame of the tab bar item
+ */
 - (CGRect)frameForTabBarItemAtIndex:(NSInteger)index;
+
+/**
+ *  Get the view of the tab bar item at the index
+ *
+ *  @param index Index of the tab bar item
+ *
+ *  @return The view of the tab bar item
+ */
 - (UIView *)viewForTabAtIndex:(NSUInteger)index;
 
+/**
+ *  Describes the style of the container
+ */
 @property (nonatomic, strong) CCContainerStyle *containerStyle;
 
 @end
