@@ -15,5 +15,5 @@ Pod::Spec.new do |s|
   s.source_files = 'Classes/**/*.{h,m}'
   s.requires_arc = true
 
-  s.dependency "Masonry", "~> 0.6.1"
+  s.dependency "Masonry"
 end
